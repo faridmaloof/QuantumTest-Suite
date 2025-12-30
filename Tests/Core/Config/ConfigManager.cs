@@ -40,7 +40,16 @@ public static class ConfigManager
 
     private static void LoadEnvFiles()
     {
+        // Find the solution root directory (go up from bin/Debug/net8.0 to project root)
         var baseDir = Directory.GetCurrentDirectory();
+        
+        // If running from bin directory, navigate up to solution root
+        if (baseDir.Contains("bin"))
+        {
+            // Navigate up: bin/Debug/net8.0 → bin → Debug → Tests (project) → solution root
+            baseDir = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", ".."));
+        }
+        
         var environment = Environment.GetEnvironmentVariable("TEST_ENVIRONMENT") 
             ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") 
             ?? "local";
@@ -60,7 +69,11 @@ public static class ConfigManager
                     setEnvVars: true,        // Set as environment variables
                     clobberExistingVars: true // Override existing
                 ));
-                Console.WriteLine($"[ConfigManager] Loaded: {Path.GetFileName(envFile)}");
+                Console.WriteLine($"[ConfigManager] ✅ Loaded: {envFile}");
+            }
+            else
+            {
+                Console.WriteLine($"[ConfigManager] ⚠️ Not found: {envFile}");
             }
         }
     }

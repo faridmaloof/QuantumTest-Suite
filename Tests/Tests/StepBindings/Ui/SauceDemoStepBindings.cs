@@ -30,7 +30,7 @@ public class SauceDemoStepBindings : UiStepBindingsBase
         await ExecuteGivenAsync(async () =>
         {
             await EnsureActorAsync("QA");
-            var page = new SauceDemoLoginPage(Context.Page!);
+            var page = new SauceDemoLoginPage(Context.Page!, Settings);
             await page.NavigateAsync();
         });
     }
@@ -43,7 +43,8 @@ public class SauceDemoStepBindings : UiStepBindingsBase
             await EnsureActorAsync("QA");
             await Actor!.AttemptsTo(new LoginToSauceDemo(
                 Settings.Users.SauceDemo.Username,
-                Settings.Users.SauceDemo.Password));
+                Settings.Users.SauceDemo.Password,
+                Settings));
         });
     }
 
@@ -52,7 +53,7 @@ public class SauceDemoStepBindings : UiStepBindingsBase
     {
         await ExecuteThenAsync(async () =>
         {
-            var page = new SauceDemoLoginPage(Context.Page!);
+            var page = new SauceDemoLoginPage(Context.Page!, Settings);
             var visible = await page.IsInventoryVisibleAsync();
             Assert.That(visible, Is.True, "Inventory page should be visible after successful login");
         });

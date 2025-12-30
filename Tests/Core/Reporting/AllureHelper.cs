@@ -61,7 +61,9 @@ public static class AllureHelper
                 _ => "unknown"
             };
 
-            await AttachScreenshotAsync($"screenshot-{timingLabel}-{stepName}", page);
+            // Format: screenshot-{stepName}-{timing}
+            var screenshotName = $"screenshot-{stepName}-{timingLabel}";
+            await AttachScreenshotAsync(screenshotName, page);
         }
     }
 
@@ -166,8 +168,16 @@ public static class AllureHelper
                 await Task.Delay(500);
                 
                 var bytes = await File.ReadAllBytesAsync(videoPath);
-                Try(() => AllureApi.AddAttachment("video-recording", "video/webm", bytes, ".webm"));
-                Console.WriteLine($"✅ Video attached: {videoPath} ({bytes.Length / 1024} KB)");
+                var fileName = Path.GetFileName(videoPath);
+                
+                // Use AllureApi which is the correct public API
+                Try(() => AllureApi.AddAttachment(
+                    name: "Test Recording",
+                    type: "video/webm",
+                    content: bytes,
+                    fileExtension: ".webm"));
+                    
+                Console.WriteLine($"✅ Video attached: {fileName} ({bytes.Length / 1024} KB)");
             }
             else
             {
@@ -188,7 +198,7 @@ public static class AllureHelper
         }
         catch
         {
-            // Swallow attachment errors so tests are not blocked if Allure lifecycle is inactive.
+            // Swallow attachment errors so tests are not blocked if Allure lifecycle is inactive
         }
     }
 }

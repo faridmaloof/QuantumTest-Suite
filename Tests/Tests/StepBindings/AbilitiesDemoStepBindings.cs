@@ -84,7 +84,7 @@ public class AbilitiesDemoStepBindings
         Assert.That(user, Is.Not.Null, "Usuario no debe ser null");
 
         // Usar el usuario para login
-        var loginPage = new SauceDemoLoginPage(Context.Page!);
+        var loginPage = new SauceDemoLoginPage(Context.Page!, _settings);
         await loginPage.NavigateAsync();
         await loginPage.LoginAsync(user.Username, user.Password);
     }

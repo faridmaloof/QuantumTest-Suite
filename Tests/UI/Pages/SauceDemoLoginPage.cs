@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using QuantumTestSuite.Core.Config;
 using QuantumTestSuite.UI.Locators;
 
 namespace QuantumTestSuite.UI.Pages;
@@ -6,15 +7,18 @@ namespace QuantumTestSuite.UI.Pages;
 public class SauceDemoLoginPage
 {
     private readonly IPage _page;
+    private readonly AppSettings _settings;
 
-    public SauceDemoLoginPage(IPage page)
+    public SauceDemoLoginPage(IPage page, AppSettings settings)
     {
         _page = page;
+        _settings = settings;
     }
 
     public async Task NavigateAsync()
     {
-        await _page.GotoAsync("/", new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+        var url = _settings.Playwright.BaseUrl.TrimEnd('/');
+        await _page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
         await _page.WaitForSelectorAsync(SauceDemoLocators.UsernameInput);
     }
 

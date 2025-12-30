@@ -66,32 +66,35 @@ public class TestHooks
         _scenarioContext.Set(uiContext);
     }
 
-    [BeforeStep("ui")]
-    public async Task CaptureScreenshotBeforeStep()
-    {
-        if (!_scenarioContext.TryGetValue<UiTestContext>(out var context) || context.Page == null)
-            return;
+    // Screenshot capture is now handled directly in UiStepBindingsBase.Execute*Async methods
+    // This ensures screenshots are attached to the step itself, not in hooks
+    
+    //[BeforeStep("ui")]
+    //public async Task CaptureScreenshotBeforeStep()
+    //{
+    //    if (!_scenarioContext.TryGetValue<UiTestContext>(out var context) || context.Page == null)
+    //        return;
+    //
+    //    await AllureHelper.CaptureScreenshotIfConfiguredAsync(
+    //        context.Page,
+    //        _scenarioContext.StepContext.StepInfo.Text,
+    //        ScreenshotTiming.BeforeStep);
+    //}
 
-        await AllureHelper.CaptureScreenshotIfConfiguredAsync(
-            context.Page,
-            _scenarioContext.StepContext.StepInfo.Text,
-            ScreenshotTiming.BeforeStep);
-    }
-
-    [AfterStep("ui")]
-    public async Task CaptureScreenshotAfterStep()
-    {
-        if (_scenarioContext.TestError != null)
-            return; // Skip if failed, OnFailure will handle it
-
-        if (!_scenarioContext.TryGetValue<UiTestContext>(out var context) || context.Page == null)
-            return;
-
-        await AllureHelper.CaptureScreenshotIfConfiguredAsync(
-            context.Page,
-            _scenarioContext.StepContext.StepInfo.Text,
-            ScreenshotTiming.AfterStep);
-    }
+    //[AfterStep("ui")]
+    //public async Task CaptureScreenshotAfterStep()
+    //{
+    //    if (_scenarioContext.TestError != null)
+    //        return; // Skip if failed, OnFailure will handle it
+    //
+    //    if (!_scenarioContext.TryGetValue<UiTestContext>(out var context) || context.Page == null)
+    //        return;
+    //
+    //    await AllureHelper.CaptureScreenshotIfConfiguredAsync(
+    //        context.Page,
+    //        _scenarioContext.StepContext.StepInfo.Text,
+    //        ScreenshotTiming.AfterStep);
+    //}
 
     [AfterStep]
     public async Task CaptureArtifactsOnFailure()
