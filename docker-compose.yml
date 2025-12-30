@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # API tests only (fast execution)
+  api-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - RUN_UI_TESTS=false
+      - SAUCEDEMO_USERNAME=${SAUCEDEMO_USERNAME}
+      - SAUCEDEMO_PASSWORD=${SAUCEDEMO_PASSWORD}
+    command: ["--filter", "Category=api", "--logger", "console;verbosity=detailed"]
+    volumes:
+      - ./Reports:/src/Tests/bin/Release/net8.0/Reports
+
+  # UI tests with Chromium
+  ui-tests-chromium:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - RUN_UI_TESTS=true
+      - PLAYWRIGHT_HEADLESS=true
+      - PLAYWRIGHT_BROWSER=chromium
+      - PLAYWRIGHT_VIDEO_ENABLED=true
+      - SCREENSHOT_ON_FAILURE=true
+      - SAUCEDEMO_USERNAME=${SAUCEDEMO_USERNAME}
+      - SAUCEDEMO_PASSWORD=${SAUCEDEMO_PASSWORD}
+    command: ["--filter", "Category=ui", "--logger", "console;verbosity=detailed"]
+    volumes:
+      - ./Reports:/src/Tests/bin/Release/net8.0/Reports
+    shm_size: '2gb'
+
+  # UI tests with Firefox
+  ui-tests-firefox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - RUN_UI_TESTS=true
+      - PLAYWRIGHT_HEADLESS=true
+      - PLAYWRIGHT_BROWSER=firefox
+      - PLAYWRIGHT_VIDEO_ENABLED=true
+      - SCREENSHOT_ON_FAILURE=true
+      - SAUCEDEMO_USERNAME=${SAUCEDEMO_USERNAME}
+      - SAUCEDEMO_PASSWORD=${SAUCEDEMO_PASSWORD}
+    command: ["--filter", "Category=ui", "--logger", "console;verbosity=detailed"]
+    volumes:
+      - ./Reports:/src/Tests/bin/Release/net8.0/Reports
+    shm_size: '2gb'
+
+  # Allure report generation service
+  allure-report:
+    image: frankescobar/allure-docker-service:latest
+    ports:
+      - "5050:5050"
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 5
+      KEEP_HISTORY: 1
+    volumes:
+      - ./Reports/AllureResults:/app/allure-results
+      - ./Reports/AllureReport:/app/allure-reports
+
+networks:
+  default:
+    name: quantum-test-network

@@ -1,0 +1,98 @@
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+
+# User-specific files
+.vs/
+*.user
+*.suo
+.vscode/
+.idea/
+*.DotSettings.user
+
+# Test results
+TestResults/
+Tests/Reports/AllureReport/
+Reports/AllureReport/
+**/allure-results/
+*.trx
+*.coverage
+
+# Playwright cache and traces
+ms-playwright/
+test-results/
+playwright-report/
+*.trace
+
+# Logs
+*.log
+logs/
+
+# SpecFlow generated files
+*.feature.cs
+
+# Allure raw results (optional keep). Uncomment to ignore if desired
+# Tests/bin/Debug/net8.0/Reports/AllureResults/
+
+# Environment-specific configurations (contains secrets)
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+*.secrets.json
+
+# User Secrets (stored outside project, but ignore if accidentally copied)
+secrets.json
+**/secrets.json
+
+# Environment files (NEVER commit these with real credentials)
+.env
+.env.local
+.env.development
+.env.qa
+.env.staging
+.env.production
+.env.*.local
+
+# Keep example files (these are templates)
+!.env.example
+!.env.*.example
+
+# Docker volumes and generated files
+docker-volumes/
+docker-compose.override.yml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+*~
+.Spotlight-V100
+.Trashes
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# IDE and Editor files
+*.sublime-*
+*.code-workspace
+
+# NuGet packages (restore them instead)
+packages/
+*.nupkg
+
+# Coverage reports
+coverage/
+*.coverage
+*.coveragexml
+
+# Node modules (if any frontend tools)
+node_modules/
+
+# Backup files
+*.bak
+*.backup

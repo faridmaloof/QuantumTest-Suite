@@ -1,0 +1,88 @@
+name: Nightly Full Test Suite
+
+on:
+  schedule:
+    # Runs at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_ENVIRONMENT: 'Production'
+
+jobs:
+  full-test-suite:
+    name: Full Test Suite (API + UI)
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Playwright browsers
+        run: |
+          pwsh -c "npx playwright install --with-deps"
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./Tests
+
+      - name: Build project
+        run: dotnet build --no-restore --configuration Release
+        working-directory: ./Tests
+
+      - name: Run All Tests
+        env:
+          SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
+          SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
+          RUN_UI_TESTS: 'true'
+          PLAYWRIGHT_HEADLESS: 'true'
+          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
+          PLAYWRIGHT_VIDEO_ENABLED: 'true'
+          SCREENSHOT_ON_FAILURE: 'true'
+        run: |
+          dotnet test \
+            --no-build \
+            --configuration Release \
+            --logger "console;verbosity=detailed" \
+            --logger "trx;LogFileName=nightly-test-results.trx"
+        working-directory: ./Tests
+
+      - name: Generate Allure Report
+        if: always()
+        run: |
+          npm install -g allure-commandline
+          allure generate Tests/bin/Release/net8.0/Reports/AllureResults \
+            -o Reports/AllureReport-Nightly-${{ matrix.browser }} \
+            --clean
+
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-nightly-${{ matrix.browser }}
+          path: Reports/AllureReport-Nightly-${{ matrix.browser }}
+          retention-days: 90
+
+      - name: Notify on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: 'Nightly Test Failure - ${{ matrix.browser }}'
+          body: 'Nightly test suite failed for browser ${{ matrix.browser }}. Check GitHub Actions for details.'
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: Quantum Test Suite

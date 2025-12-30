@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    env:
+      ALLURE_CONFIG: Tests/allureConfig.json
+      PLAYWRIGHT_HEADLESS: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build Tests/QuantumTestSuite.Tests.csproj --configuration Release
+
+      - name: Install Playwright browsers
+        run: pwsh -c "npx playwright install --with-deps chromium"
+
+      - name: Test
+        run: dotnet test Tests/QuantumTestSuite.Tests.csproj --configuration Release --logger "trx;LogFileName=test_results.trx"
+
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results
+          path: Tests/Reports/AllureResults

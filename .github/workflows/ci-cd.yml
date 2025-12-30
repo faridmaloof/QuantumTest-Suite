@@ -1,0 +1,218 @@
+name: Quantum Test Suite - CI/CD
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      run_ui_tests:
+        description: 'Run UI tests (true/false)'
+        required: false
+        default: 'false'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_ENVIRONMENT: 'Production'
+
+jobs:
+  api-tests:
+    name: API Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./Tests
+
+      - name: Build project
+        run: dotnet build --no-restore --configuration Release
+        working-directory: ./Tests
+
+      - name: Run API Tests
+        env:
+          SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
+          SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
+          RUN_UI_TESTS: 'false'
+        run: |
+          dotnet test \
+            --no-build \
+            --configuration Release \
+            --filter "Category=api" \
+            --logger "console;verbosity=detailed" \
+            --logger "trx;LogFileName=api-test-results.trx"
+        working-directory: ./Tests
+
+      - name: Generate Allure Report
+        if: always()
+        run: |
+          npm install -g allure-commandline
+          allure generate Tests/bin/Release/net8.0/Reports/AllureResults \
+            -o Reports/AllureReport \
+            --clean
+
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-api
+          path: Reports/AllureReport
+          retention-days: 30
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-api
+          path: Tests/TestResults/*.trx
+          retention-days: 30
+
+  ui-tests:
+    name: UI Tests
+    runs-on: ubuntu-latest
+    if: github.event.inputs.run_ui_tests == 'true' || contains(github.event.head_commit.message, '[run-ui]')
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Playwright browsers
+        run: |
+          pwsh -c "npx playwright install --with-deps ${{ matrix.browser }}"
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./Tests
+
+      - name: Build project
+        run: dotnet build --no-restore --configuration Release
+        working-directory: ./Tests
+
+      - name: Run UI Tests
+        env:
+          SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
+          SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
+          RUN_UI_TESTS: 'true'
+          PLAYWRIGHT_HEADLESS: 'true'
+          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
+          PLAYWRIGHT_VIDEO_ENABLED: 'true'
+          SCREENSHOT_ON_FAILURE: 'true'
+        run: |
+          dotnet test \
+            --no-build \
+            --configuration Release \
+            --filter "Category=ui" \
+            --logger "console;verbosity=detailed" \
+            --logger "trx;LogFileName=ui-test-results-${{ matrix.browser }}.trx"
+        working-directory: ./Tests
+
+      - name: Generate Allure Report
+        if: always()
+        run: |
+          npm install -g allure-commandline
+          allure generate Tests/bin/Release/net8.0/Reports/AllureResults \
+            -o Reports/AllureReport-${{ matrix.browser }} \
+            --clean
+
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-ui-${{ matrix.browser }}
+          path: Reports/AllureReport-${{ matrix.browser }}
+          retention-days: 30
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-ui-${{ matrix.browser }}
+          path: Tests/TestResults/*.trx
+          retention-days: 30
+
+      - name: Upload Videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-videos-${{ matrix.browser }}
+          path: Tests/bin/Release/net8.0/Reports/AllureResults/videos/**/*
+          retention-days: 7
+
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./Tests
+
+      - name: Build project
+        run: dotnet build --no-restore --configuration Release
+        working-directory: ./Tests
+
+      - name: Run Smoke Tests
+        env:
+          SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
+          SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
+          RUN_UI_TESTS: 'false'
+        run: |
+          dotnet test \
+            --no-build \
+            --configuration Release \
+            --filter "Category=smoke" \
+            --logger "console;verbosity=detailed"
+        working-directory: ./Tests
+
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./Tests
+
+      - name: Build with warnings as errors
+        run: dotnet build --no-restore --configuration Release /warnaserror
+        working-directory: ./Tests
+
+      - name: Run .NET format check
+        run: dotnet format --verify-no-changes --verbosity diagnostic
+        working-directory: ./Tests
+        continue-on-error: true

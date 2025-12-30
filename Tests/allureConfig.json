@@ -1,0 +1,62 @@
+{
+  "allure": {
+    "directory": "Reports/AllureResults",
+    "cleanupCycle": 1,
+    "title": "QuantumTestSuite - Test Automation Report",
+    "linkTemplates": {
+      "tc": "https://your-tms.com/testcase/{0}",
+      "issue": "https://your-jira.com/browse/{0}",
+      "link": "https://your-wiki.com/{0}"
+    }
+  },
+  "categories": [
+    {
+      "name": "🐛 Product Bugs",
+      "description": "Test failures due to application defects",
+      "matchedStatuses": ["failed"],
+      "messageRegex": ".*(AssertionException|AssertionError|Expected.*but was).*"
+    },
+    {
+      "name": "🌐 API Issues",
+      "description": "API-related failures (HTTP errors, timeouts, invalid responses)",
+      "matchedStatuses": ["broken", "failed"],
+      "messageRegex": ".*(HttpRequestException|WebException|API|HTTP|status code|endpoint).*"
+    },
+    {
+      "name": "🖥️ UI/Browser Issues",
+      "description": "Browser automation failures (locators, timeouts, page errors)",
+      "matchedStatuses": ["broken", "failed"],
+      "messageRegex": ".*(PlaywrightException|TimeoutError|Locator|ElementNotFound|SelectorError).*"
+    },
+    {
+      "name": "🔧 Infrastructure Issues",
+      "description": "Environment, network, or system-related failures",
+      "matchedStatuses": ["broken"],
+      "messageRegex": ".*(TimeoutException|WebException|SocketException|IOException|ConnectionException|NetworkException).*"
+    },
+    {
+      "name": "⚙️ Configuration Errors",
+      "description": "Missing or invalid configuration",
+      "matchedStatuses": ["broken"],
+      "messageRegex": ".*(ConfigurationException|FileNotFoundException|appsettings|configuration|.env).*"
+    },
+    {
+      "name": "📊 Test Data Issues",
+      "description": "Problems with test data or factories",
+      "matchedStatuses": ["broken", "failed"],
+      "messageRegex": ".*(NullReferenceException|ArgumentNullException|ArgumentException|DataException|Factory|TestData).*"
+    },
+    {
+      "name": "🔐 Authentication Issues",
+      "description": "Login, authentication, or authorization failures",
+      "matchedStatuses": ["failed", "broken"],
+      "messageRegex": ".*(Authentication|Authorization|Login|Unauthorized|401|403|Forbidden).*"
+    },
+    {
+      "name": "⏭️ Ignored Tests",
+      "description": "Tests that were skipped or ignored",
+      "matchedStatuses": ["skipped"],
+      "messageRegex": ".*"
+    }
+  ]
+}
