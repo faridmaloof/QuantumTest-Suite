@@ -48,10 +48,10 @@ Given('the user navigates to the Playwright demo page', async () => {
     "Tests/Features/**/*.feature"
   ],
   "cucumber.glue": [
-    "Tests/Tests/StepBindings/**/*.cs"
+    "Tests/StepBindings/StepBindings/**/*.cs"
   ],
   "cucumberautocomplete.steps": [
-    "Tests/Tests/StepBindings/**/*.cs"
+    "Tests/StepBindings/StepBindings/**/*.cs"
   ],
   "cucumberautocomplete.syncfeatures": "Tests/Features/**/*.feature",
   "cucumberautocomplete.strictGherkinValidation": false,
@@ -84,7 +84,7 @@ code --uninstall-extension CucumberOpen.cucumber-official
 ### Steps API (Pokemon API) ✅
 
 **Feature**: `pokemon_api.feature`  
-**Step Bindings**: `Tests/Tests/StepBindings/Api/PokemonApiStepBindings.cs`
+**Step Bindings**: `Tests/StepBindings/StepBindings/Api/PokemonApiStepBindings.cs`
 
 | Step | Implementado | Archivo |
 |------|-------------|---------|
@@ -103,7 +103,7 @@ code --uninstall-extension CucumberOpen.cucumber-official
 ### Steps UI (TodoMVC) ✅
 
 **Feature**: `playwright_demo.feature`  
-**Step Bindings**: `Tests/Tests/StepBindings/Ui/PlaywrightDemoStepBindings.cs`
+**Step Bindings**: `Tests/StepBindings/StepBindings/Ui/PlaywrightDemoStepBindings.cs`
 
 | Step | Implementado | Archivo |
 |------|-------------|---------|
@@ -118,7 +118,7 @@ code --uninstall-extension CucumberOpen.cucumber-official
 ### Steps Unit (Screenplay Pattern) ✅
 
 **Feature**: `screenplay_pattern_tests.feature`  
-**Step Bindings**: `Tests/Tests/StepBindings/Unit/ScreenplayPatternStepBindings.cs`
+**Step Bindings**: `Tests/StepBindings/StepBindings/Unit/ScreenplayPatternStepBindings.cs`
 
 | Step | Implementado | Archivo |
 |------|-------------|---------|
@@ -177,7 +177,7 @@ Warnings:  ⚠️ FALSE POSITIVES (extension issue)
 ## 📞 Referencias
 
 - **Tests Pasando**: 14/14 (100%)
-- **Step Bindings**: `Tests/Tests/StepBindings/`
+- **Step Bindings**: `Tests/StepBindings/StepBindings/`
 - **Features**: `Tests/Features/`
 - **Framework**: Reqnroll 3.3.0
 - **Test Runner**: NUnit 3.14.0

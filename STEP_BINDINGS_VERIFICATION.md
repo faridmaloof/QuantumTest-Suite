@@ -17,7 +17,7 @@ All Gherkin steps in feature files have corresponding C# step bindings implement
 ### 1. Pokemon API Tests ✅
 
 **File**: `Tests/Features/ApiFeatures/pokemon_api.feature`  
-**Step Bindings**: `Tests/Tests/StepBindings/Api/PokemonApiStepBindings.cs`  
+**Step Bindings**: `Tests/StepBindings/StepBindings/Api/PokemonApiStepBindings.cs`  
 **Status**: ✅ 5/5 scenarios passing
 
 | Gherkin Step | C# Method | Line | Status |
@@ -40,7 +40,7 @@ All Gherkin steps in feature files have corresponding C# step bindings implement
 ### 2. TodoMVC UI Tests ✅
 
 **File**: `Tests/Features/UiFeatures/playwright_demo.feature`  
-**Step Bindings**: `Tests/Tests/StepBindings/Ui/PlaywrightDemoStepBindings.cs`  
+**Step Bindings**: `Tests/StepBindings/StepBindings/Ui/PlaywrightDemoStepBindings.cs`  
 **Status**: ✅ 3/3 scenarios passing
 
 | Gherkin Step | C# Method | Line | Status |
@@ -58,7 +58,7 @@ All Gherkin steps in feature files have corresponding C# step bindings implement
 ### 3. SauceDemo Login Tests ✅
 
 **File**: `Tests/Features/UiFeatures/saucedemo_login.feature`  
-**Step Bindings**: `Tests/Tests/StepBindings/Ui/SauceDemoStepBindings.cs`  
+**Step Bindings**: `Tests/StepBindings/StepBindings/Ui/SauceDemoStepBindings.cs`  
 **Status**: ✅ Scenarios available (not in current test run due to environment)
 
 | Gherkin Step | C# Method | Status |
@@ -72,7 +72,7 @@ All Gherkin steps in feature files have corresponding C# step bindings implement
 ### 4. Screenplay Pattern Unit Tests ✅
 
 **File**: `Tests/Features/UnitFeatures/screenplay_pattern_tests.feature`  
-**Step Bindings**: `Tests/Tests/StepBindings/Unit/ScreenplayPatternStepBindings.cs`  
+**Step Bindings**: `Tests/StepBindings/StepBindings/Unit/ScreenplayPatternStepBindings.cs`  
 **Status**: ✅ 6/6 scenarios passing
 
 #### Questions Tests
@@ -140,11 +140,11 @@ The Cucumber extension in VS Code shows "undefined step" warnings because:
 dotnet test
 
 # Method 2: Search for step definition
-Get-ChildItem -Path "Tests/Tests/StepBindings" -Recurse -Filter "*.cs" | 
+Get-ChildItem -Path "Tests/StepBindings/StepBindings" -Recurse -Filter "*.cs" | 
   Select-String -Pattern "the user adds"
 
 # Method 3: Check specific binding file
-code "Tests/Tests/StepBindings/Ui/PlaywrightDemoStepBindings.cs"
+code "Tests/StepBindings/StepBindings/Ui/PlaywrightDemoStepBindings.cs"
 ```
 
 ### Configuration Added
@@ -154,7 +154,7 @@ Created `.vscode/settings.json` to minimize warnings:
 ```json
 {
   "cucumber.features": ["Tests/Features/**/*.feature"],
-  "cucumber.glue": ["Tests/Tests/StepBindings/**/*.cs"],
+  "cucumber.glue": ["Tests/StepBindings/StepBindings/**/*.cs"],
   "cucumberautocomplete.strictGherkinValidation": false
 }
 ```

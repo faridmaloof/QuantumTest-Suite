@@ -203,7 +203,7 @@ QuantumTest-Suite/
 
 ### Step Bindings
 
-**Location**: `Tests/Tests/StepBindings/{Ui|Api|Unit}/`  
+**Location**: `Tests/StepBindings/StepBindings/{Ui|Api|Unit}/`  
 **Naming**: `PascalCase` + `StepBindings.cs` suffix  
 **Examples**:
 - ✅ `PlaywrightDemoStepBindings.cs`
@@ -214,7 +214,7 @@ QuantumTest-Suite/
 
 ### Page Objects
 
-**Location**: `Tests/UI/Pages/`  
+**Location**: `Tests/Framework/UI/Pages/`  
 **Naming**: `PascalCase` + `Page.cs` suffix  
 **Examples**:
 - ✅ `PlaywrightDemoPage.cs`
@@ -223,7 +223,7 @@ QuantumTest-Suite/
 
 ### Locators
 
-**Location**: `Tests/UI/Locators/`  
+**Location**: `Tests/Framework/UI/Locators/`  
 **Naming**: `PascalCase` + `Locators.cs` suffix  
 **Must be**: Static class with const string fields  
 **Examples**:
@@ -232,7 +232,7 @@ QuantumTest-Suite/
 
 ### Tasks
 
-**Location**: `Tests/UI/Screenplay/Tasks/`  
+**Location**: `Tests/Framework/UI/Screenplay/Tasks/`  
 **Naming**: `VerbNoun` pattern in `PascalCase`  
 **Examples**:
 - ✅ `AddTodoItem.cs`
@@ -243,8 +243,8 @@ QuantumTest-Suite/
 ### Questions (NEW) ✨
 
 **Location**: 
-- UI: `Tests/UI/Screenplay/Questions/`
-- API: `Tests/API/Questions/`
+- UI: `Tests/Framework/UI/Screenplay/Questions/`
+- API: `Tests/Framework/API/Questions/`
 
 **Naming**: `The{Property}.cs` pattern  
 **Examples**:
@@ -255,7 +255,7 @@ QuantumTest-Suite/
 
 ### API Clients
 
-**Location**: `Tests/API/Clients/`  
+**Location**: `Tests/Framework/API/Clients/`  
 **Naming**: `PascalCase` + `Client.cs` suffix  
 **Examples**:
 - ✅ `PokeApiClient.cs`
@@ -269,7 +269,7 @@ The Screenplay Pattern organizes test code into clear layers:
 
 ### 1. Actors (Who)
 
-**Location**: `Tests/UI/Screenplay/Actors/Actor.cs`  
+**Location**: `Tests/Framework/UI/Screenplay/Actors/Actor.cs`  
 **Purpose**: Represents a user/system performing actions
 
 ```csharp
@@ -285,7 +285,7 @@ var actor = new Actor("TestUser", page)
 
 ### 2. Abilities (What They Can Do)
 
-**Location**: `Tests/UI/Screenplay/Abilities/`  
+**Location**: `Tests/Framework/UI/Screenplay/Abilities/`  
 **Purpose**: Enable actors to interact with different layers
 
 **Available Abilities**:
@@ -296,7 +296,7 @@ var actor = new Actor("TestUser", page)
 
 ### 3. Tasks (How They Do It)
 
-**Location**: `Tests/UI/Screenplay/Tasks/`  
+**Location**: `Tests/Framework/UI/Screenplay/Tasks/`  
 **Purpose**: High-level business actions
 
 **Structure**:
@@ -317,8 +317,8 @@ public class AddTodoItem : ITask
 ### 4. Questions (What They See) ✨ NEW
 
 **Location**: 
-- `Tests/UI/Screenplay/Questions/` (UI)
-- `Tests/API/Questions/` (API)
+- `Tests/Framework/UI/Screenplay/Questions/` (UI)
+- `Tests/Framework/API/Questions/` (API)
 
 **Purpose**: Retrieve information for assertions
 
@@ -398,7 +398,7 @@ Feature: Feature Title
 
 ### 2. Step Bindings Template
 
-**Location**: `Tests/Tests/StepBindings/{Ui|Api|Unit}/*StepBindings.cs`
+**Location**: `Tests/StepBindings/StepBindings/{Ui|Api|Unit}/*StepBindings.cs`
 
 ```csharp
 using Allure.NUnit.Attributes;
@@ -458,7 +458,7 @@ public class FeatureNameStepBindings : UiStepBindingsBase
 
 ### 3. Page Object Template
 
-**Location**: `Tests/UI/Pages/*Page.cs`
+**Location**: `Tests/Framework/UI/Pages/*Page.cs`
 
 ```csharp
 using Microsoft.Playwright;
@@ -507,7 +507,7 @@ public class PageNamePage
 
 ### 4. Locators Template
 
-**Location**: `Tests/UI/Locators/*Locators.cs`
+**Location**: `Tests/Framework/UI/Locators/*Locators.cs`
 
 ```csharp
 namespace QuantumTestSuite.Framework.UI.Locators;
@@ -536,7 +536,7 @@ public static class PageNameLocators
 
 ### 5. Task Template
 
-**Location**: `Tests/UI/Screenplay/Tasks/*.cs`
+**Location**: `Tests/Framework/UI/Screenplay/Tasks/*.cs`
 
 ```csharp
 using QuantumTestSuite.UI.Pages;
@@ -572,7 +572,7 @@ public class TaskName : ITask
 
 ### 6. UI Question Template ✨ NEW
 
-**Location**: `Tests/UI/Screenplay/Questions/*.cs`
+**Location**: `Tests/Framework/UI/Screenplay/Questions/*.cs`
 
 ```csharp
 namespace QuantumTestSuite.Framework.UI.Screenplay.Questions;
@@ -602,7 +602,7 @@ public class TheSomething : IQuestion<string>
 
 ### 7. API Client Template
 
-**Location**: `Tests/API/Clients/*Client.cs`
+**Location**: `Tests/Framework/API/Clients/*Client.cs`
 
 ```csharp
 using System.Net.Http;
@@ -649,7 +649,7 @@ public class ApiNameClient
 
 ### 8. API Question Template ✨ NEW
 
-**Location**: `Tests/API/Questions/*.cs`
+**Location**: `Tests/Framework/API/Questions/*.cs`
 
 ```csharp
 using QuantumTestSuite.UI.Screenplay.Abilities;
@@ -690,18 +690,18 @@ public class TheSomething : IApiQuestion<SomeType>
 
 **Correct Paths**:
 - ✅ `Tests/Features/UiFeatures/`
-- ✅ `Tests/Tests/StepBindings/Ui/`
-- ✅ `Tests/UI/Pages/`
-- ✅ `Tests/UI/Locators/`
-- ✅ `Tests/UI/Screenplay/Tasks/`
-- ✅ `Tests/UI/Screenplay/Questions/` ✨ NEW
-- ✅ `Tests/API/Clients/`
-- ✅ `Tests/API/Questions/` ✨ NEW
+- ✅ `Tests/StepBindings/StepBindings/Ui/`
+- ✅ `Tests/Framework/UI/Pages/`
+- ✅ `Tests/Framework/UI/Locators/`
+- ✅ `Tests/Framework/UI/Screenplay/Tasks/`
+- ✅ `Tests/Framework/UI/Screenplay/Questions/` ✨ NEW
+- ✅ `Tests/Framework/API/Clients/`
+- ✅ `Tests/Framework/API/Questions/` ✨ NEW
 
 **Deprecated/Wrong Paths**:
 - ❌ `Features/` (root level - deprecated)
 - ❌ `Core/PageObjects/` (old POM location)
-- ❌ `Tests/UI/StepBindings/` (wrong location)
+- ❌ `Tests/Framework/UI/StepBindings/` (wrong location)
 
 ### Naming Validation
 
@@ -753,7 +753,7 @@ Feature: Playwright Interactive Testing Demo
     And the list should include "Item 1"
 ```
 
-**Step Bindings**: `Tests/Tests/StepBindings/Ui/PlaywrightDemoStepBindings.cs`
+**Step Bindings**: `Tests/StepBindings/StepBindings/Ui/PlaywrightDemoStepBindings.cs`
 ```csharp
 [When(@"the user adds ""(.*)"" to the list")]
 public async Task WhenTheUserAddsItemToTheList(string itemText)
@@ -780,10 +780,10 @@ public async Task ThenTheListShouldContainItems(int expectedCount)
 ```
 
 **Complete Files**:
-- Page: `Tests/UI/Pages/PlaywrightDemoPage.cs`
-- Locators: `Tests/UI/Locators/PlaywrightDemoLocators.cs`
-- Task: `Tests/UI/Screenplay/Tasks/AddTodoItem.cs`
-- Questions: `Tests/UI/Screenplay/Questions/TheTodoItems.cs` ✨
+- Page: `Tests/Framework/UI/Pages/PlaywrightDemoPage.cs`
+- Locators: `Tests/Framework/UI/Locators/PlaywrightDemoLocators.cs`
+- Task: `Tests/Framework/UI/Screenplay/Tasks/AddTodoItem.cs`
+- Questions: `Tests/Framework/UI/Screenplay/Questions/TheTodoItems.cs` ✨
 
 ### Example 2: Complete API Feature (PokeAPI)
 
@@ -800,7 +800,7 @@ Feature: Pokemon API Testing
     And the pokemon should have "electric" type
 ```
 
-**Step Bindings**: `Tests/Tests/StepBindings/Api/PokemonApiStepBindings.cs`
+**Step Bindings**: `Tests/StepBindings/StepBindings/Api/PokemonApiStepBindings.cs`
 ```csharp
 [When(@"I request pokemon ""(.*)""")]
 public async Task WhenIRequestPokemon(string pokemonName)
@@ -819,9 +819,9 @@ public async Task ThenThePokemonShouldHaveType(string expectedType)
 ```
 
 **Complete Files**:
-- Client: `Tests/API/Clients/PokeApiClient.cs`
-- Model: `Tests/API/Models/Pokemon.cs`
-- Question: `Tests/API/Questions/ThePokemon.cs` ✨
+- Client: `Tests/Framework/API/Clients/PokeApiClient.cs`
+- Model: `Tests/Framework/API/Models/Pokemon.cs`
+- Question: `Tests/Framework/API/Questions/ThePokemon.cs` ✨
 
 ### Example 3: Unit Testing (Framework Components)
 
@@ -838,7 +838,7 @@ Feature: Screenplay Pattern Components Unit Tests
     Then the question should return the correct text content
 ```
 
-**Step Bindings**: `Tests/Tests/StepBindings/Unit/ScreenplayPatternStepBindings.cs`
+**Step Bindings**: `Tests/StepBindings/StepBindings/Unit/ScreenplayPatternStepBindings.cs`
 
 ---
 
@@ -847,14 +847,14 @@ Feature: Screenplay Pattern Components Unit Tests
 ### ❌ Don't: Put step bindings in wrong location
 
 ```
-Tests/UI/StepBindings/  ← WRONG
+Tests/Framework/UI/StepBindings/  ← WRONG
 Tests/StepBindings/     ← WRONG
 ```
 
 ### ✅ Do: Use correct location
 
 ```
-Tests/Tests/StepBindings/Ui/  ← CORRECT
+Tests/StepBindings/StepBindings/Ui/  ← CORRECT
 ```
 
 ### ❌ Don't: Use magic strings in step bindings
@@ -944,19 +944,19 @@ When generating files, provide:
 1. **Feature File**: `Tests/Features/UiFeatures/feature_name.feature`
    Description: [What this feature tests]
 
-2. **Step Bindings**: `Tests/Tests/StepBindings/Ui/FeatureNameStepBindings.cs`
+2. **Step Bindings**: `Tests/StepBindings/StepBindings/Ui/FeatureNameStepBindings.cs`
    Description: [Step definitions with Screenplay Pattern]
 
-3. **Page Object**: `Tests/UI/Pages/PageNamePage.cs`
+3. **Page Object**: `Tests/Framework/UI/Pages/PageNamePage.cs`
    Description: [Page interactions]
 
-4. **Locators**: `Tests/UI/Locators/PageNameLocators.cs`
+4. **Locators**: `Tests/Framework/UI/Locators/PageNameLocators.cs`
    Description: [Centralized element selectors]
 
-5. **Tasks**: `Tests/UI/Screenplay/Tasks/TaskName.cs`
+5. **Tasks**: `Tests/Framework/UI/Screenplay/Tasks/TaskName.cs`
    Description: [High-level business actions]
 
-6. **Questions** ✨: `Tests/UI/Screenplay/Questions/ThePropertyName.cs`
+6. **Questions** ✨: `Tests/Framework/UI/Screenplay/Questions/ThePropertyName.cs`
    Description: [Data retrieval for assertions]
 
 Dependencies: [List files that depend on each other]
@@ -1026,7 +1026,7 @@ For questions about this guide or the framework:
 │
 ├── Core/                             # ❌ OLD STRUCTURE - Being migrated
 │   └── PageObjects/                  # Legacy location
-│       └── *Page.cs                  # Use Tests/UI/Pages/ instead
+│       └── *Page.cs                  # Use Tests/Framework/UI/Pages/ instead
 │
 └── docs/                             # Framework documentation
     ├── FILE-STRUCTURE-GUIDE.md      # This file
@@ -1049,7 +1049,7 @@ For questions about this guide or the framework:
   - `restful_booker_crud.feature`
 
 ### 2. Step Bindings (Step Definitions)
-- **Location**: `Tests/Tests/StepBindings/Ui/` or `Tests/Tests/StepBindings/Api/`
+- **Location**: `Tests/StepBindings/StepBindings/Ui/` or `Tests/StepBindings/StepBindings/Api/`
 - **Pattern**: `[FeatureName]StepBindings.cs` (PascalCase)
 - **Examples**:
   - `SauceDemoStepBindings.cs`
@@ -1057,7 +1057,7 @@ For questions about this guide or the framework:
   - `RestfulBookerStepBindings.cs`
 
 ### 3. Page Objects
-- **Location**: `Tests/UI/Pages/`
+- **Location**: `Tests/Framework/UI/Pages/`
 - **Pattern**: `[PageName]Page.cs` (PascalCase + "Page" suffix)
 - **Examples**:
   - `SauceDemoLoginPage.cs`
@@ -1065,7 +1065,7 @@ For questions about this guide or the framework:
   - `PlaywrightOfficialPage.cs`
 
 ### 4. Locators
-- **Location**: `Tests/UI/Locators/`
+- **Location**: `Tests/Framework/UI/Locators/`
 - **Pattern**: `[PageName]Locators.cs` (PascalCase + "Locators" suffix)
 - **Examples**:
   - `SauceDemoLocators.cs`
@@ -1073,7 +1073,7 @@ For questions about this guide or the framework:
   - `PlaywrightLocators.cs`
 
 ### 5. Screenplay Tasks
-- **Location**: `Tests/UI/Screenplay/Tasks/`
+- **Location**: `Tests/Framework/UI/Screenplay/Tasks/`
 - **Pattern**: `[Verb][Context].cs` (Action-oriented names)
 - **Examples**:
   - `LoginToSauceDemo.cs`
@@ -1082,7 +1082,7 @@ For questions about this guide or the framework:
   - `NavigateToGoogle.cs`
 
 ### 6. Screenplay Abilities
-- **Location**: `Tests/UI/Screenplay/Abilities/`
+- **Location**: `Tests/Framework/UI/Screenplay/Abilities/`
 - **Pattern**: `[Capability].cs` (Noun describing capability)
 - **Examples**:
   - `RememberData.cs`
@@ -1091,7 +1091,7 @@ For questions about this guide or the framework:
   - `ReadConfiguration.cs`
 
 ### 7. Screenplay Questions (TO IMPLEMENT)
-- **Location**: `Tests/UI/Screenplay/Questions/`
+- **Location**: `Tests/Framework/UI/Screenplay/Questions/`
 - **Pattern**: `The[Property].cs` (Question pattern)
 - **Examples**:
   - `TheDisplayedInventory.cs`
@@ -1113,21 +1113,21 @@ FILE: Tests/Features/UiFeatures/[feature_name].feature
 DESCRIPTION: Gherkin feature file with UI test scenarios
 DEPENDENCIES: None
 ---
-FILE: Tests/Tests/StepBindings/Ui/[FeatureName]StepBindings.cs
+FILE: Tests/StepBindings/StepBindings/Ui/[FeatureName]StepBindings.cs
 DESCRIPTION: Step definitions using Screenplay Pattern
-DEPENDENCIES: Tests/UI/Pages/*Page.cs, Tests/UI/Screenplay/Tasks/*.cs, Reqnroll, NUnit.Framework
+DEPENDENCIES: Tests/Framework/UI/Pages/*Page.cs, Tests/Framework/UI/Screenplay/Tasks/*.cs, Reqnroll, NUnit.Framework
 ---
-FILE: Tests/UI/Pages/[PageName]Page.cs
+FILE: Tests/Framework/UI/Pages/[PageName]Page.cs
 DESCRIPTION: Page Object Model for page interactions
-DEPENDENCIES: Tests/UI/Locators/[PageName]Locators.cs, Microsoft.Playwright
+DEPENDENCIES: Tests/Framework/UI/Locators/[PageName]Locators.cs, Microsoft.Playwright
 ---
-FILE: Tests/UI/Locators/[PageName]Locators.cs
+FILE: Tests/Framework/UI/Locators/[PageName]Locators.cs
 DESCRIPTION: Centralized locators for page elements
 DEPENDENCIES: None
 ---
-FILE: Tests/UI/Screenplay/Tasks/[Action][Context].cs
+FILE: Tests/Framework/UI/Screenplay/Tasks/[Action][Context].cs
 DESCRIPTION: High-level business task
-DEPENDENCIES: Tests/UI/Pages/*Page.cs, Tests/UI/Screenplay/Actors/Actor.cs
+DEPENDENCIES: Tests/Framework/UI/Pages/*Page.cs, Tests/Framework/UI/Screenplay/Actors/Actor.cs
 === END FILE STRUCTURE ===
 ```
 
@@ -1141,29 +1141,29 @@ FILE: Tests/Features/UiFeatures/[feature_name].feature
 DESCRIPTION: Gherkin feature file with complex UI workflow
 DEPENDENCIES: None
 ---
-FILE: Tests/Tests/StepBindings/Ui/[FeatureName]StepBindings.cs
+FILE: Tests/StepBindings/StepBindings/Ui/[FeatureName]StepBindings.cs
 DESCRIPTION: Step definitions orchestrating multiple tasks
-DEPENDENCIES: Tests/UI/Screenplay/Tasks/*.cs, Tests/UI/Screenplay/Abilities/*.cs
+DEPENDENCIES: Tests/Framework/UI/Screenplay/Tasks/*.cs, Tests/Framework/UI/Screenplay/Abilities/*.cs
 ---
-FILE: Tests/UI/Pages/[FirstPage]Page.cs
+FILE: Tests/Framework/UI/Pages/[FirstPage]Page.cs
 DESCRIPTION: Page Object for first page
-DEPENDENCIES: Tests/UI/Locators/[FirstPage]Locators.cs
+DEPENDENCIES: Tests/Framework/UI/Locators/[FirstPage]Locators.cs
 ---
-FILE: Tests/UI/Locators/[FirstPage]Locators.cs
+FILE: Tests/Framework/UI/Locators/[FirstPage]Locators.cs
 DESCRIPTION: Locators for first page
 DEPENDENCIES: None
 ---
-FILE: Tests/UI/Pages/[SecondPage]Page.cs
+FILE: Tests/Framework/UI/Pages/[SecondPage]Page.cs
 DESCRIPTION: Page Object for second page
-DEPENDENCIES: Tests/UI/Locators/[SecondPage]Locators.cs
+DEPENDENCIES: Tests/Framework/UI/Locators/[SecondPage]Locators.cs
 ---
-FILE: Tests/UI/Locators/[SecondPage]Locators.cs
+FILE: Tests/Framework/UI/Locators/[SecondPage]Locators.cs
 DESCRIPTION: Locators for second page
 DEPENDENCIES: None
 ---
-FILE: Tests/UI/Screenplay/Tasks/[Action][Context].cs
+FILE: Tests/Framework/UI/Screenplay/Tasks/[Action][Context].cs
 DESCRIPTION: Business task coordinating page interactions
-DEPENDENCIES: Tests/UI/Pages/*Page.cs, Tests/UI/Screenplay/Actors/Actor.cs
+DEPENDENCIES: Tests/Framework/UI/Pages/*Page.cs, Tests/Framework/UI/Screenplay/Actors/Actor.cs
 === END FILE STRUCTURE ===
 ```
 
@@ -1177,15 +1177,15 @@ FILE: Tests/Features/ApiFeatures/[feature_name].feature
 DESCRIPTION: Gherkin feature file for API test
 DEPENDENCIES: None
 ---
-FILE: Tests/Tests/StepBindings/Api/[FeatureName]StepBindings.cs
+FILE: Tests/StepBindings/StepBindings/Api/[FeatureName]StepBindings.cs
 DESCRIPTION: Step definitions for API testing
-DEPENDENCIES: Tests/API/Clients/*.cs, Tests/API/Models/*.cs
+DEPENDENCIES: Tests/Framework/API/Clients/*.cs, Tests/Framework/API/Models/*.cs
 ---
-FILE: Tests/API/Models/[Entity]Request.cs
+FILE: Tests/Framework/API/Models/[Entity]Request.cs
 DESCRIPTION: Request DTO model
 DEPENDENCIES: None
 ---
-FILE: Tests/API/Models/[Entity]Response.cs
+FILE: Tests/Framework/API/Models/[Entity]Response.cs
 DESCRIPTION: Response DTO model
 DEPENDENCIES: None
 === END FILE STRUCTURE ===
@@ -1394,13 +1394,13 @@ public interface ITask
 
 ### File Path Validation
 - ✅ Feature files MUST be in `Tests/Features/UiFeatures/` or `Tests/Features/ApiFeatures/`
-- ✅ Step bindings MUST be in `Tests/Tests/StepBindings/Ui/` or `Tests/Tests/StepBindings/Api/`
-- ✅ Pages MUST be in `Tests/UI/Pages/`
-- ✅ Locators MUST be in `Tests/UI/Locators/`
-- ✅ Tasks MUST be in `Tests/UI/Screenplay/Tasks/`
+- ✅ Step bindings MUST be in `Tests/StepBindings/StepBindings/Ui/` or `Tests/StepBindings/StepBindings/Api/`
+- ✅ Pages MUST be in `Tests/Framework/UI/Pages/`
+- ✅ Locators MUST be in `Tests/Framework/UI/Locators/`
+- ✅ Tasks MUST be in `Tests/Framework/UI/Screenplay/Tasks/`
 - ❌ DO NOT use `Features/` root directory (deprecated)
 - ❌ DO NOT use `Core/PageObjects/` (deprecated)
-- ❌ DO NOT use `Tests/UI/` for step definitions
+- ❌ DO NOT use `Tests/Framework/UI/` for step definitions
 
 ### Naming Validation
 - ✅ Feature files: `snake_case.feature`
@@ -1435,12 +1435,12 @@ Tests/Features/UiFeatures/google_search.feature
 
 ### ❌ Wrong: Step definitions in UI folder
 ```
-Tests/UI/GoogleSearchSteps.cs  # WRONG LOCATION
+Tests/Framework/UI/GoogleSearchSteps.cs  # WRONG LOCATION
 ```
 
 ### ✅ Correct: Step definitions in StepBindings
 ```
-Tests/Tests/StepBindings/Ui/GoogleSearchStepBindings.cs
+Tests/StepBindings/StepBindings/Ui/GoogleSearchStepBindings.cs
 ```
 
 ### ❌ Wrong: Page Objects in Core
@@ -1448,9 +1448,9 @@ Tests/Tests/StepBindings/Ui/GoogleSearchStepBindings.cs
 Core/PageObjects/GooglePage.cs  # DEPRECATED
 ```
 
-### ✅ Correct: Pages in Tests/UI/Pages
+### ✅ Correct: Pages in Tests/Framework/UI/Pages
 ```
-Tests/UI/Pages/GooglePage.cs
+Tests/Framework/UI/Pages/GooglePage.cs
 ```
 
 ### ❌ Wrong: Locators inside Page class
@@ -1463,7 +1463,7 @@ public class GooglePage
 
 ### ✅ Correct: Centralized Locators
 ```csharp
-// Tests/UI/Locators/GoogleLocators.cs
+// Tests/Framework/UI/Locators/GoogleLocators.cs
 public static class GoogleLocators
 {
     public const string SearchBox = "#search";
@@ -1484,21 +1484,21 @@ FILE: Tests/Features/UiFeatures/[feature_name].feature
 DESCRIPTION: [Clear description]
 DEPENDENCIES: None
 ---
-FILE: Tests/Tests/StepBindings/Ui/[FeatureName]StepBindings.cs
+FILE: Tests/StepBindings/StepBindings/Ui/[FeatureName]StepBindings.cs
 DESCRIPTION: [Clear description]
 DEPENDENCIES: [Comma-separated list or "None"]
 ---
-FILE: Tests/UI/Pages/[PageName]Page.cs
+FILE: Tests/Framework/UI/Pages/[PageName]Page.cs
 DESCRIPTION: [Clear description]
-DEPENDENCIES: Tests/UI/Locators/[PageName]Locators.cs, Microsoft.Playwright
+DEPENDENCIES: Tests/Framework/UI/Locators/[PageName]Locators.cs, Microsoft.Playwright
 ---
-FILE: Tests/UI/Locators/[PageName]Locators.cs
+FILE: Tests/Framework/UI/Locators/[PageName]Locators.cs
 DESCRIPTION: [Clear description]
 DEPENDENCIES: None
 ---
-FILE: Tests/UI/Screenplay/Tasks/[Action][Context].cs
+FILE: Tests/Framework/UI/Screenplay/Tasks/[Action][Context].cs
 DESCRIPTION: [Clear description]
-DEPENDENCIES: Tests/UI/Pages/*Page.cs, Tests/UI/Screenplay/Actors/Actor.cs
+DEPENDENCIES: Tests/Framework/UI/Pages/*Page.cs, Tests/Framework/UI/Screenplay/Actors/Actor.cs
 === END FILE STRUCTURE ===
 ```
 

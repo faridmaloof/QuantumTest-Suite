@@ -633,14 +633,14 @@ public async Task ThenTheHeadingShouldDisplay(string expectedText)
 
 ### Available Built-in Questions
 
-**UI Questions** (`Tests/UI/Screenplay/Questions/`):
+**UI Questions** (`Tests/Framework/UI/Screenplay/Questions/`):
 - `TheText.Of(selector)` - Get text content
 - `TheVisibility.Of(selector)` - Check visibility (returns bool)
 - `TheCount.Of(selector)` - Count matching elements
 - `TheValue.Of(selector)` - Get input value
 - `TheTodoItems.All()` - Get all todo items (domain-specific)
 
-**API Questions** (`Tests/API/Questions/`):
+**API Questions** (`Tests/Framework/API/Questions/`):
 - `TheResponseStatus.Code` - Get HTTP status code
 - `TheResponseBody<T>.Deserialize()` - Deserialize response body
 

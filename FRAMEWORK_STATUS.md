@@ -153,8 +153,8 @@ var body = await actor.Asks(TheResponseBody<Pokemon>.Deserialize());
 - ✅ **Maintainability**: Centralized element queries
 
 **Locations**:
-- UI Questions: `Tests/UI/Screenplay/Questions/`
-- API Questions: `Tests/API/Questions/`
+- UI Questions: `Tests/Framework/UI/Screenplay/Questions/`
+- API Questions: `Tests/Framework/API/Questions/`
 
 **Documentation**:
 - ✅ ARCHITECTURE.md - Complete section with examples

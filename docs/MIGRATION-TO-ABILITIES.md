@@ -806,7 +806,7 @@ Si tienes dudas durante la migración:
 
 2. **Ejemplos**:
    - [AbilitiesDemo.feature](../Tests/Features/UiFeatures/AbilitiesDemo.feature) - Scenarios de demostración
-   - [AbilitiesDemoStepBindings.cs](../Tests/Tests/StepBindings/AbilitiesDemoStepBindings.cs) - Step bindings de ejemplo
+   - [AbilitiesDemoStepBindings.cs](../Tests/StepBindings/StepBindings/AbilitiesDemoStepBindings.cs) - Step bindings de ejemplo
 
 3. **Testing**:
    - [AbilitiesTests.feature](../Tests/Features/UnitFeatures/AbilitiesTests.feature) - Unit tests del sistema
