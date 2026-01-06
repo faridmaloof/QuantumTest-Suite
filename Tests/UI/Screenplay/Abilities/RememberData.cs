@@ -76,10 +76,8 @@ public class RememberData : IAbility
     /// <summary>
     /// Clear all stored values.
     /// </summary>
-    public void ForgetAll()
-    {
-        _memory.Clear();
-    }
+    public void ForgetAll() 
+        => _memory.Clear();
 
     /// <summary>
     /// Get all stored keys.

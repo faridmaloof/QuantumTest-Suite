@@ -18,17 +18,11 @@ namespace QuantumTestSuite.UI.Screenplay.Abilities;
 /// var users = await actor.Using&lt;AccessDatabase&gt;()
 ///     .QueryAsync&lt;User&gt;("SELECT * FROM Users WHERE Active = @Active", new { Active = true });
 /// </example>
-public class AccessDatabase : IAbility
+public class AccessDatabase(IDbConnection connection, DatabaseConfig? config = null) : IAbility
 {
-    private readonly IDbConnection _connection;
-    private readonly DatabaseConfig _config;
+    private readonly IDbConnection _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+    private readonly DatabaseConfig _config = config ?? new DatabaseConfig();
     private bool _isInitialized;
-
-    public AccessDatabase(IDbConnection connection, DatabaseConfig? config = null)
-    {
-        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        _config = config ?? new DatabaseConfig();
-    }
 
     public async Task InitializeAsync()
     {

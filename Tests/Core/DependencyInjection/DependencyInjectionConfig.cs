@@ -5,7 +5,6 @@ using QuantumTestSuite.Core.Hooks;
 using QuantumTestSuite.Core.Reporting;
 using QuantumTestSuite.Core.Services;
 using QuantumTestSuite.Tests.StepBindings;
-using QuantumTestSuite.Tests.StepBindings.UnitFeatures;
 using Reqnroll;
 using Reqnroll.Autofac;
 
@@ -52,12 +51,10 @@ public class DependencyInjectionConfig
             .Where(t => t.Namespace != null && t.Namespace.Contains("StepBindings.Ui"))
             .InstancePerLifetimeScope();
         
-        // Unit Features Step Bindings
-        builder.RegisterType<AbilitiesDemoStepBindings>().InstancePerLifetimeScope();
-        builder.RegisterType<AbilitiesTestsStepBindings>().InstancePerLifetimeScope();
-        builder.RegisterType<ConfigManagerStepBindings>().InstancePerLifetimeScope();
-        builder.RegisterType<TestDataFactoryStepBindings>().InstancePerLifetimeScope();
-        builder.RegisterType<UtilitiesStepBindings>().InstancePerLifetimeScope();
+        // Unit Step Bindings  
+        builder.RegisterAssemblyTypes(typeof(DependencyInjectionConfig).Assembly)
+            .Where(t => t.Namespace != null && t.Namespace.Contains("StepBindings.Unit"))
+            .InstancePerLifetimeScope();
 
         return builder;
     }

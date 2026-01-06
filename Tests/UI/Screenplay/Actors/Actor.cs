@@ -113,6 +113,23 @@ public class Actor
     }
 
     /// <summary>
+    /// Ask a Question and get the answer.
+    /// Questions are used to retrieve information from the system under test.
+    /// </summary>
+    /// <typeparam name="T">The type of answer expected</typeparam>
+    /// <param name="question">The question to ask</param>
+    /// <returns>The answer to the question</returns>
+    /// <example>
+    /// var title = await actor.Asks(TheTitle.OfThePage);
+    /// var text = await actor.Asks(TheText.Of(".message"));
+    /// var isVisible = await actor.Asks(TheVisibility.Of("#button"));
+    /// </example>
+    public async Task<T> Asks<T>(Questions.IQuestion<T> question)
+    {
+        return await question.AnsweredBy(this);
+    }
+
+    /// <summary>
     /// Clean up all Abilities when the Actor is no longer needed.
     /// </summary>
     public async Task CleanupAsync()

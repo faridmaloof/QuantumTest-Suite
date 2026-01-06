@@ -11,16 +11,16 @@ namespace QuantumTestSuite.UI.Screenplay.Abilities;
 /// var response = await actor.Using&lt;CallApiEndpoint&gt;()
 ///     .GetAsync&lt;User&gt;("/api/users/1");
 /// </example>
-public class CallApiEndpoint : IAbility
+public class CallApiEndpoint(IAPIRequestContext apiContext, AppSettings settings) : IAbility
 {
-    private readonly IAPIRequestContext _apiContext;
-    private readonly AppSettings _settings;
+    private readonly IAPIRequestContext _apiContext = apiContext ?? throw new ArgumentNullException(nameof(apiContext));
+    private readonly AppSettings _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+    private HttpResponseMessage? _lastResponse;
 
-    public CallApiEndpoint(IAPIRequestContext apiContext, AppSettings settings)
-    {
-        _apiContext = apiContext ?? throw new ArgumentNullException(nameof(apiContext));
-        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-    }
+    /// <summary>
+    /// Gets the last HTTP response for assertions
+    /// </summary>
+    public HttpResponseMessage? GetLastResponse() => _lastResponse;
 
     /// <summary>
     /// Perform a GET request to the specified endpoint.
@@ -33,6 +33,13 @@ public class CallApiEndpoint : IAbility
     {
         var url = CombineUrl(baseUrl, endpoint);
         var response = await _apiContext.GetAsync(url);
+        
+        // Store response for Questions pattern
+        _lastResponse = new HttpResponseMessage
+        {
+            StatusCode = (System.Net.HttpStatusCode)response.Status,
+            Content = new StringContent(await response.TextAsync())
+        };
         
         if (!response.Ok)
         {
@@ -72,6 +79,13 @@ public class CallApiEndpoint : IAbility
             }
         });
 
+        // Store response for Questions pattern
+        _lastResponse = new HttpResponseMessage
+        {
+            StatusCode = (System.Net.HttpStatusCode)response.Status,
+            Content = new StringContent(await response.TextAsync())
+        };
+
         if (!response.Ok)
         {
             throw new HttpRequestException(
@@ -110,7 +124,7 @@ public class CallApiEndpoint : IAbility
         return new Uri(new Uri(baseUrl), endpoint).ToString();
     }
 
-    public Task CleanupAsync()
+    public static Task CleanupAsync()
     {
         // API context is managed by TestHooks, no cleanup needed here
         return Task.CompletedTask;
