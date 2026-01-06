@@ -183,7 +183,7 @@ Tests/
 - [x] Implementar 3 features de unit tests con step bindings
 - [x] Integrar Unit Tests con Allure
 - [x] Extender .gitignore (User Secrets, temporales, IDE)
-- [x] Revisar archivos de configuración (allure, appsettings, specflow)
+- [x] Revisar archivos de configuración (allure, appsettings, reqnroll)
 - [x] Actualizar README.md con referencias a nueva documentación
 - [x] Actualizar tabla de documentación
 - [x] Agregar ejemplos de Unit Tests en README

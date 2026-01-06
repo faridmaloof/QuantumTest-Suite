@@ -10,41 +10,41 @@ namespace QuantumTestSuite.UI.Screenplay.Abilities;
 /// var baseUrl = actor.Using&lt;ReadConfiguration&gt;().GetBaseUrl();
 /// var isHeadless = actor.Using&lt;ReadConfiguration&gt;().IsHeadless();
 /// </example>
-public class ReadConfiguration : IAbility
+public class ReadConfiguration(AppSettings settings) : IAbility
 {
-    private readonly AppSettings _settings;
-
-    public ReadConfiguration(AppSettings settings)
-    {
-        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-    }
+    private readonly AppSettings _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
     /// <summary>
     /// Get the base URL for UI tests.
     /// </summary>
-    public string GetBaseUrl() => _settings.Playwright.BaseUrl;
+    public string GetBaseUrl()
+        => _settings.Playwright.BaseUrl;
 
     /// <summary>
     /// Check if headless mode is enabled.
     /// </summary>
-    public bool IsHeadless() => _settings.Playwright.Headless;
+    public bool IsHeadless()
+        => _settings.Playwright.Headless;
 
     /// <summary>
     /// Get the configured browser type.
     /// </summary>
-    public string GetBrowser() => _settings.Playwright.Browser;
+    public string GetBrowser()
+        => _settings.Playwright.Browser;
 
     /// <summary>
     /// Check if video recording is enabled.
     /// </summary>
-    public bool IsVideoEnabled() => _settings.Playwright.VideoEnabled;
+    public bool IsVideoEnabled()
+        => _settings.Playwright.VideoEnabled;
 
     /// <summary>
     /// Get API URL by name.
     /// </summary>
     /// <param name="apiName">API name (HttpBin, RestfulBooker, GitHub, etc.)</param>
     /// <returns>The configured API URL</returns>
-    public string GetApiUrl(string apiName) => apiName.ToLowerInvariant() switch
+    public string GetApiUrl(string apiName)
+        => apiName.ToLowerInvariant() switch
     {
         "httpbin" => _settings.Apis.HttpBin,
         "restfulbooker" or "booking" => _settings.Apis.RestfulBooker,
@@ -70,12 +70,15 @@ public class ReadConfiguration : IAbility
     /// <summary>
     /// Get the current environment name.
     /// </summary>
-    public string GetEnvironment() => _settings.Env;
+    public string GetEnvironment()
+        => _settings.Env;
 
     /// <summary>
     /// Get the full AppSettings instance for advanced scenarios.
     /// </summary>
-    public AppSettings GetSettings() => _settings;
+    public AppSettings GetSettings()
+        => _settings;
 
-    public Task CleanupAsync() => Task.CompletedTask;
+    public static Task CleanupAsync()
+        => Task.CompletedTask;
 }

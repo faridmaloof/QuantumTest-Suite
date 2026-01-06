@@ -14,10 +14,12 @@ public interface IAbility
     /// <summary>
     /// Optional initialization logic when the ability is assigned to an Actor.
     /// </summary>
-    Task InitializeAsync() => Task.CompletedTask;
+    Task InitializeAsync() 
+        => Task.CompletedTask;
 
     /// <summary>
     /// Optional cleanup logic when the ability is no longer needed.
     /// </summary>
-    Task CleanupAsync() => Task.CompletedTask;
+    Task CleanupAsync() 
+        => Task.CompletedTask;
 }

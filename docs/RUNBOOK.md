@@ -469,7 +469,9 @@ dotnet add package <PackageName>
 
 ### Generate Feature File Code-Behind
 ```powershell
-dotnet build /t:GenerateSpecFlowFeatureFiles
+# Reqnroll regenerates feature files automatically during build
+dotnet clean
+dotnet build
 ```
 
 ### Check Test Discovery

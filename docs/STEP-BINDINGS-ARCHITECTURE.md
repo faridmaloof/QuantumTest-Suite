@@ -82,9 +82,9 @@ public class SauceDemoStepBindings : UiStepBindingsBase
     {
         await ExecuteThenAsync(async () =>
         {
-            var page = new SauceDemoInventoryPage(Context.Page!);
-            var isVisible = await page.IsInventoryTitleVisibleAsync();
-            Assert.That(isVisible, Is.True, "Inventory page title should be visible");
+            // ✅ BEST PRACTICE: Use Questions for assertions
+            var isVisible = await Actor!.Asks(TheVisibility.Of("#inventory_container"));
+            Assert.That(isVisible, Is.True, "Inventory page should be visible");
         });
         // Screenshots captured before and after assertion automatically
     }
@@ -516,6 +516,166 @@ StepBindings/Api/
 └── ApiCommonStepBindings.cs (45 lines)
 ```
 
+## Best Practices for Then Steps ✨
+
+### ✅ DO: Use Questions Pattern for Assertions
+
+Questions represent "what the actor sees" - data retrieval for verification.
+
+**UI Questions Examples**:
+```csharp
+[Then(@"the list should contain (.*) items")]
+public async Task ThenTheListShouldContainItems(int expectedCount)
+{
+    await ExecuteThenAsync(async () =>
+    {
+        // ✅ Use Questions pattern
+        var actualCount = await Actor!.Asks(TheCount.Of(".todo-item"));
+        Assert.That(actualCount, Is.EqualTo(expectedCount));
+    });
+}
+
+[Then(@"the heading should display ""(.*)""")]
+public async Task ThenTheHeadingShouldDisplay(string expectedText)
+{
+    await ExecuteThenAsync(async () =>
+{
+        // ✅ Use TheText question
+        var actualText = await Actor!.Asks(TheText.Of("h1.title"));
+        Assert.That(actualText, Is.EqualTo(expectedText));
+    });
+}
+
+[Then(@"the button should be visible")]
+public async Task ThenTheButtonShouldBeVisible()
+{
+    await ExecuteThenAsync(async () =>
+    {
+        // ✅ Use TheVisibility question
+        var isVisible = await Actor!.Asks(TheVisibility.Of("#submit-btn"));
+        Assert.That(isVisible, Is.True);
+    });
+}
+
+[Then(@"the list should include ""(.*)""")]
+public async Task ThenTheListShouldInclude(string expectedItem)
+{
+    await ExecuteThenAsync(async () =>
+    {
+        // ✅ Use domain-specific question
+        var items = await Actor!.Asks(TheTodoItems.All());
+        Assert.That(items, Does.Contain(expectedItem));
+    });
+}
+```
+
+**API Questions Examples**:
+```csharp
+[Then(@"the response status should be (.*)")]
+public async Task ThenResponseStatusShouldBe(int expectedStatus)
+{
+    await ExecuteThenAsync(async () =>
+    {
+        // ✅ Use TheResponseStatus question
+        var status = await Actor!.Asks(TheResponseStatus.Code);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+    });
+}
+
+[Then(@"the response should contain pokemon data")]
+public async Task ThenResponseShouldContainPokemonData()
+{
+    await ExecuteThenAsync(async () =>
+    {
+        // ✅ Use TheResponseBody question
+        var pokemon = await Actor!.Asks(TheResponseBody<Pokemon>.Deserialize());
+        Assert.That(pokemon, Is.Not.Null);
+        Assert.That(pokemon.Name, Is.Not.Empty);
+    });
+}
+```
+
+### ❌ DON'T: Use Direct Playwright/Page Calls in Then Steps
+
+**Anti-Pattern** (Old way):
+```csharp
+[Then(@"the list should contain (.*) items")]
+public async Task ThenTheListShouldContainItems(int expectedCount)
+{
+    await ExecuteThenAsync(async () =>
+    {
+        // ❌ Don't use direct Playwright calls
+        var count = await Actor!.Page.Locator(".todo-item").CountAsync();
+        Assert.That(count, Is.EqualTo(expectedCount));
+    });
+}
+
+[Then(@"the heading should display ""(.*)""")]
+public async Task ThenTheHeadingShouldDisplay(string expectedText)
+{
+    await ExecuteThenAsync(async () =>
+    {
+        // ❌ Don't use direct Page Object methods for assertions
+        var page = new TodoPage(Actor!.Page);
+        var text = await page.GetHeadingTextAsync();
+        Assert.That(text, Is.EqualTo(expectedText));
+    });
+}
+```
+
+### Why Questions Pattern?
+
+1. **Separation of Concerns**: Questions = data retrieval, not UI interaction
+2. **Reusability**: Share questions across multiple test scenarios
+3. **Testability**: Questions are unit-testable independently
+4. **Readability**: `Actor.Asks(TheText.Of())` is more expressive
+5. **Maintainability**: Centralized element queries
+
+### Available Built-in Questions
+
+**UI Questions** (`Tests/UI/Screenplay/Questions/`):
+- `TheText.Of(selector)` - Get text content
+- `TheVisibility.Of(selector)` - Check visibility (returns bool)
+- `TheCount.Of(selector)` - Count matching elements
+- `TheValue.Of(selector)` - Get input value
+- `TheTodoItems.All()` - Get all todo items (domain-specific)
+
+**API Questions** (`Tests/API/Questions/`):
+- `TheResponseStatus.Code` - Get HTTP status code
+- `TheResponseBody<T>.Deserialize()` - Deserialize response body
+
+### Creating Custom Questions
+
+```csharp
+// 1. Implement IQuestion<T>
+public class TheCssClass : IQuestion<string>
+{
+    private readonly string _selector;
+
+    private TheCssClass(string selector) => _selector = selector;
+
+    // 2. Fluent factory method
+    public static TheCssClass Of(string selector) => new(selector);
+
+    // 3. Answer method (read-only)
+    public async Task<string> AnsweredBy(Actor actor)
+    {
+        return await actor.Page.GetAttributeAsync(_selector, "class") ?? "";
+    }
+}
+
+// 4. Use in step binding
+[Then(@"the element should have class ""(.*)""")]
+public async Task ThenElementShouldHaveClass(string expectedClass)
+{
+    await ExecuteThenAsync(async () =>
+    {
+        var actualClass = await Actor!.Asks(TheCssClass.Of(".element"));
+        Assert.That(actualClass, Does.Contain(expectedClass));
+    });
+}
+```
+
 ## Performance Considerations
 
 ### Screenshot Performance
@@ -534,7 +694,8 @@ StepBindings/Api/
 
 - [ALLURE-QUICKSTART.md](ALLURE-QUICKSTART.md) - Allure reporting setup
 - [ABILITIES-GUIDE.md](ABILITIES-GUIDE.md) - Screenplay pattern abilities
-- [ARCHITECTURE.md](ARCHITECTURE.md) - Overall solution architecture
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Overall solution architecture (includes Questions pattern)
+- [FILE-STRUCTURE-GUIDE.md](FILE-STRUCTURE-GUIDE.md) - Complete file structure with Questions templates
 - [CONFIGURATION.md](CONFIGURATION.md) - Configuration management
 
 ## Version History
@@ -542,3 +703,4 @@ StepBindings/Api/
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0.0 | 2024-01 | Initial modular architecture with base classes |
+| 2.0.0 | 2025-01 | Added Questions Pattern best practices and examples |
