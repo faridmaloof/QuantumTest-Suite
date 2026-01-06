@@ -285,234 +285,9 @@ The Screenplay Pattern has 4 layers. For detailed philosophy, see [ARCHITECTURE.
 
 ## 📦 Code Templates
 
-### 1. Feature File Template
+> **Complete Templates**: See templates below. For additional examples (Feature files, Step Bindings, Questions), see [STEP-BINDINGS-ARCHITECTURE.md](STEP-BINDINGS-ARCHITECTURE.md).
 
-**Location**: `Tests/Features/{UiFeatures|ApiFeatures|UnitFeatures}/*.feature`
-
-```gherkin
-@allure.parentSuite:UI-Tests
-@allure.suite:SuiteName
-@allure.feature:FeatureName
-@allure.owner:QA-Team
-Feature: Feature Title
-  As a [role]
-  I want [feature]
-  So that [benefit]
-
-  @ui @smoke
-  @allure.story:StoryName
-  @allure.severity:critical
-  Scenario: Scenario Title
-    Given precondition
-    When action
-    Then expected result
-```
-
-### 2. Step Bindings Template
-
-**Location**: `Tests/StepBindings/StepBindings/{Ui|Api|Unit}/*StepBindings.cs`
-
-```csharp
-using Allure.NUnit.Attributes;
-using NUnit.Framework;
-using QuantumTestSuite.Core.Config;
-using QuantumTestSuite.Tests.StepBindings.Base;
-using QuantumTestSuite.UI.Screenplay.Tasks;
-using QuantumTestSuite.UI.Screenplay.Questions;
-using Reqnroll;
-
-namespace QuantumTestSuite.StepBindings.Ui;
-
-[Binding]
-[AllureParentSuite("UI Tests")]
-[AllureSuite("Suite Name")]
-[AllureFeature("Feature Name")]
-public class FeatureNameStepBindings : UiStepBindingsBase
-{
-    public FeatureNameStepBindings(
-        ScenarioContext scenarioContext,
-        AppSettings settings)
-        : base(scenarioContext, settings)
-    {
-    }
-
-    [Given(@"step pattern")]
-    public async Task GivenStep()
-    {
-        await ExecuteGivenAsync(async () =>
-        {
-            await EnsureActorAsync("User1");
-            // Implementation
-        });
-    }
-
-    [When(@"step pattern")]
-    public async Task WhenStep()
-    {
-        await ExecuteWhenAsync(async () =>
-        {
-            await Actor!.AttemptsTo(SomeTask.WithParams());
-        });
-    }
-
-    [Then(@"step pattern")]
-    public async Task ThenStep()
-    {
-        await ExecuteThenAsync(async () =>
-        {
-            // Use Questions for assertions
-            var result = await Actor!.Asks(TheText.Of(".selector"));
-            Assert.That(result, Is.EqualTo("expected"));
-        });
-    }
-}
-```
-
-### 3. Page Object Template
-
-**Location**: `Tests/Framework/UI/Pages/*Page.cs`
-
-```csharp
-using Microsoft.Playwright;
-using QuantumTestSuite.UI.Locators;
-using QuantumTestSuite.Core.Config;
-
-namespace QuantumTestSuite.Framework.UI.Pages;
-
-/// <summary>
-/// Page Object for [PageName] page
-/// URL: [page URL]
-/// </summary>
-public class PageNamePage
-{
-    private readonly IPage _page;
-    private readonly AppSettings? _settings;
-
-    public PageNamePage(IPage page, AppSettings? settings = null)
-    {
-        _page = page;
-        _settings = settings;
-    }
-
-    public async Task NavigateAsync()
-    {
-        var url = _settings?.Playwright?.BaseUrl ?? "https://example.com";
-        await _page.GotoAsync(url, new PageGotoOptions 
-        { 
-            WaitUntil = WaitUntilState.NetworkIdle 
-        });
-        await _page.WaitForSelectorAsync(PageNameLocators.MainContainer);
-    }
-
-    public async Task<bool> IsVisibleAsync()
-    {
-        return await _page.IsVisibleAsync(PageNameLocators.MainContainer);
-    }
-
-    // Add specific page methods here
-    public async Task ClickButtonAsync()
-    {
-        await _page.ClickAsync(PageNameLocators.SubmitButton);
-    }
-}
-```
-
-### 4. Locators Template
-
-**Location**: `Tests/Framework/UI/Locators/*Locators.cs`
-
-```csharp
-namespace QuantumTestSuite.Framework.UI.Locators;
-
-/// <summary>
-/// Centralized locators for [PageName] page
-/// </summary>
-public static class PageNameLocators
-{
-    // Main containers
-    public const string MainContainer = ".main-container";
-    
-    // Input elements
-    public const string UsernameInput = "input[name='username']";
-    public const string PasswordInput = "input[type='password']";
-    
-    // Buttons
-    public const string SubmitButton = "button[type='submit']";
-    public const string CancelButton = ".btn-cancel";
-    
-    // Messages/alerts
-    public const string ErrorMessage = ".error-message";
-    public const string SuccessMessage = ".success";
-}
-```
-
-### 5. Task Template
-
-**Location**: `Tests/Framework/UI/Screenplay/Tasks/*.cs`
-
-```csharp
-using QuantumTestSuite.UI.Pages;
-using QuantumTestSuite.UI.Screenplay.Actors;
-using QuantumTestSuite.Core.Config;
-
-namespace QuantumTestSuite.Framework.UI.Screenplay.Tasks;
-
-/// <summary>
-/// Task to [action description]
-/// </summary>
-public class TaskName : ITask
-{
-    private readonly string _param;
-    private readonly AppSettings? _settings;
-
-    private TaskName(string param, AppSettings? settings = null)
-    {
-        _param = param;
-        _settings = settings;
-    }
-
-    public static TaskName With(string param) => new(param);
-
-    public async Task ExecuteAsync(Actor actor)
-    {
-        var page = new SomePage(actor.Page, _settings);
-        await page.NavigateAsync();
-        await page.DoSomethingAsync(_param);
-    }
-}
-```
-
-### 6. UI Question Template ✨ NEW
-
-**Location**: `Tests/Framework/UI/Screenplay/Questions/*.cs`
-
-```csharp
-namespace QuantumTestSuite.Framework.UI.Screenplay.Questions;
-
-/// <summary>
-/// Question to retrieve [description]
-/// </summary>
-public class TheSomething : IQuestion<string>
-{
-    private readonly string _selector;
-
-    private TheSomething(string selector)
-    {
-        _selector = selector;
-    }
-
-    public static TheSomething Of(string selector) => new(selector);
-
-    public async Task<string> AnsweredBy(Actors.Actor actor)
-    {
-        var element = await actor.Page.WaitForSelectorAsync(_selector);
-        // Extract and return the information
-        return await element.InnerTextAsync();
-    }
-}
-```
-
-### 7. API Client Template
+### 1. API Client Template
 
 **Location**: `Tests/Framework/API/Clients/*Client.cs`
 
@@ -523,10 +298,6 @@ using QuantumTestSuite.API.Models;
 
 namespace QuantumTestSuite.Framework.API.Clients;
 
-/// <summary>
-/// Client for [API Name]
-/// Base URL: [API base URL]
-/// </summary>
 public class ApiNameClient
 {
     private readonly HttpClient _httpClient;
@@ -535,134 +306,120 @@ public class ApiNameClient
     public ApiNameClient(HttpClient? httpClient = null)
     {
         _httpClient = httpClient ?? new HttpClient 
-        { 
-            BaseAddress = new Uri("https://api.example.com/") 
-        };
+        { BaseAddress = new Uri("https://api.example.com/") };
         _jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
+        { PropertyNameCaseInsensitive = true };
     }
 
     public async Task<(Model? Data, HttpResponseMessage Response)> GetResourceAsync(int id)
     {
         var response = await _httpClient.GetAsync($"resource/{id}");
-        
-        if (!response.IsSuccessStatusCode)
-            return (null, response);
-
+        if (!response.IsSuccessStatusCode) return (null, response);
         var content = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<Model>(content, _jsonOptions);
-        
         return (data, response);
     }
 }
 ```
 
-### 8. API Question Template ✨ NEW
+### 2. UI Page + Locators Template (Combined)
 
-**Location**: `Tests/Framework/API/Questions/*.cs`
+**Page Object**: `Tests/Framework/UI/Pages/*Page.cs`
 
 ```csharp
-using QuantumTestSuite.UI.Screenplay.Abilities;
+using Microsoft.Playwright;
+using QuantumTestSuite.UI.Locators;
 
-namespace QuantumTestSuite.Framework.API.Questions;
+namespace QuantumTestSuite.Framework.UI.Pages;
 
-/// <summary>
-/// Question to retrieve [description] from API response
-/// </summary>
-public class TheSomething : IApiQuestion<SomeType>
+public class PageNamePage
 {
-    private static readonly TheSomething _instance = new();
+    private readonly IPage _page;
+    public PageNamePage(IPage page) => _page = page;
 
-    private TheSomething() { }
+    public async Task NavigateAsync() => 
+        await _page.GotoAsync("https://example.com", new() { WaitUntil = WaitUntilState.NetworkIdle });
+    public async Task<bool> IsVisibleAsync() => 
+        await _page.IsVisibleAsync(PageNameLocators.MainContainer);
+}
+```
 
-    public static TheSomething Value => _instance;
+**Locators**: `Tests/Framework/UI/Locators/*Locators.cs`
 
-    public async Task<SomeType> AnsweredBy(UI.Screenplay.Actors.Actor actor)
+```csharp
+namespace QuantumTestSuite.Framework.UI.Locators;
+
+public static class PageNameLocators
+{
+    public const string MainContainer = ".main-container";
+    public const string UsernameInput = "input[name='username']";
+    public const string SubmitButton = "button[type='submit']";
+}
+```
+
+### 3. Task Template
+
+**Location**: `Tests/Framework/UI/Screenplay/Tasks/*.cs`
+
+```csharp
+using QuantumTestSuite.UI.Pages;
+using QuantumTestSuite.UI.Screenplay.Actors;
+
+namespace QuantumTestSuite.Framework.UI.Screenplay.Tasks;
+
+public class TaskName : ITask
+{
+    private readonly string _param;
+    private TaskName(string param) => _param = param;
+    public static TaskName With(string param) => new(param);
+
+    public async Task ExecuteAsync(Actor actor)
     {
-        var apiAbility = actor.Using<CallApiEndpoint>();
-        var response = apiAbility.GetLastResponse();
-        
-        if (response == null)
-            throw new InvalidOperationException("No API response available");
-
-        // Extract and return the data
-        var content = await response.Content.ReadAsStringAsync();
-        return System.Text.Json.JsonSerializer.Deserialize<SomeType>(content);
+        var page = new SomePage(actor.Page);
+        await page.NavigateAsync();
+        await page.DoSomethingAsync(_param);
     }
 }
 ```
+
+**Additional Templates**: For Step Bindings, Questions (UI/API), Feature files, see [STEP-BINDINGS-ARCHITECTURE.md](STEP-BINDINGS-ARCHITECTURE.md) sections on "Adding New Step Bindings" and "Creating Custom Questions".
 
 ---
 
 ## ✅ Validation Rules
 
-### Path Validation
+### Critical Paths
+- ✅ `Tests/Features/{UiFeatures|ApiFeatures}/` - Gherkin features
+- ✅ `Tests/StepBindings/StepBindings/{Ui|Api}/` - Step definitions
+- ✅ `Tests/Framework/UI/{Pages|Locators|Screenplay/Tasks|Screenplay/Questions}/`
+- ✅ `Tests/Framework/API/{Clients|Questions}/`
+- ❌ `Features/`, `Core/PageObjects/` - Deprecated
 
-**Correct Paths**:
-- ✅ `Tests/Features/UiFeatures/`
-- ✅ `Tests/StepBindings/StepBindings/Ui/`
-- ✅ `Tests/Framework/UI/Pages/`
-- ✅ `Tests/Framework/UI/Locators/`
-- ✅ `Tests/Framework/UI/Screenplay/Tasks/`
-- ✅ `Tests/Framework/UI/Screenplay/Questions/` ✨ NEW
-- ✅ `Tests/Framework/API/Clients/`
-- ✅ `Tests/Framework/API/Questions/` ✨ NEW
+### Naming Conventions
+- Feature files: `snake_case.feature`
+- Step bindings: `*StepBindings.cs`
+- Pages: `*Page.cs`, Locators: `*Locators.cs` (static)
+- Tasks: `VerbNoun.cs`, Questions: `The*.cs`
 
-**Deprecated/Wrong Paths**:
-- ❌ `Features/` (root level - deprecated)
-- ❌ `Core/PageObjects/` (old POM location)
-- ❌ `Tests/Framework/UI/StepBindings/` (wrong location)
-
-### Naming Validation
-
-- Feature files: Must be `snake_case.feature`
-- Step bindings: Must end with `StepBindings.cs`
-- Page objects: Must end with `Page.cs`
-- Locators: Must end with `Locators.cs` and be static
-- Tasks: Must follow `VerbNoun` pattern
-- Questions: Must start with `The` prefix ✨
-
-### Dependency Validation
-
-**Import Order**:
-1. System namespaces
-2. Microsoft namespaces
-3. Third-party namespaces (Allure, NUnit, Reqnroll)
-4. QuantumTestSuite namespaces
-
-**Required Using Statements** (Step Bindings):
-```csharp
-using Allure.NUnit.Attributes;
-using NUnit.Framework;
-using QuantumTestSuite.Core.Config;
-using QuantumTestSuite.Tests.StepBindings.Base;
-using QuantumTestSuite.UI.Screenplay.Tasks;
-using QuantumTestSuite.UI.Screenplay.Questions;  // ✨ NEW
-using Reqnroll;
-```
+### Dependencies
+- Step bindings: Inherit `UiStepBindingsBase` or `ApiStepBindingsBase`
+- Pages → Locators → (no dependencies)
+- Tasks → Pages, Questions → (read-only)
 
 ---
 
 ## 📚 Examples
 
-### Example 1: Complete UI Feature (Playwright TodoMVC Demo)
+### Complete UI Feature: TodoMVC with Questions Pattern
 
 **Feature**: `Tests/Features/UiFeatures/playwright_demo.feature`
 ```gherkin
-@allure.parentSuite:UI-Tests
-@allure.suite:Playwright-Demo
-@allure.feature:InteractiveElements
-Feature: Playwright Interactive Testing Demo
-  
-  @ui @smoke @demo
-  Scenario: Add and verify items in a dynamic list
-    Given the user navigates to the Playwright demo page
-    When the user adds "Item 1" to the list
-    And the user adds "Item 2" to the list
-    Then the list should contain 2 items
-    And the list should include "Item 1"
+@ui @smoke
+Scenario: Add and verify items in todo list
+  Given the user navigates to the Playwright demo page
+  When the user adds "Buy groceries" to the list
+  Then the list should contain 1 item
+  And the list should include "Buy groceries"
 ```
 
 **Step Bindings**: `Tests/StepBindings/StepBindings/Ui/PlaywrightDemoStepBindings.cs`
@@ -672,7 +429,7 @@ public async Task WhenTheUserAddsItemToTheList(string itemText)
 {
     await ExecuteWhenAsync(async () =>
     {
-        await Actor!.AttemptsTo(AddTodoItem.With(itemText));
+        await Actor!.AttemptsTo(AddTodoItem.With(itemText)); // Task
     });
 }
 
@@ -681,152 +438,61 @@ public async Task ThenTheListShouldContainItems(int expectedCount)
 {
     await ExecuteThenAsync(async () =>
     {
-        // ✨ Using Questions Pattern
-        var actualCount = await Actor!.Asks(
-            TheCount.Of(PlaywrightDemoLocators.TodoItem)
-        );
-        
+        // ✨ Questions Pattern for assertions
+        var actualCount = await Actor!.Asks(TheCount.Of(PlaywrightDemoLocators.TodoItem));
         Assert.That(actualCount, Is.EqualTo(expectedCount));
     });
 }
 ```
 
 **Complete Files**:
-- Page: `Tests/Framework/UI/Pages/PlaywrightDemoPage.cs`
-- Locators: `Tests/Framework/UI/Locators/PlaywrightDemoLocators.cs`
-- Task: `Tests/Framework/UI/Screenplay/Tasks/AddTodoItem.cs`
-- Questions: `Tests/Framework/UI/Screenplay/Questions/TheTodoItems.cs` ✨
+- `Tests/Framework/UI/Pages/PlaywrightDemoPage.cs`
+- `Tests/Framework/UI/Locators/PlaywrightDemoLocators.cs`
+- `Tests/Framework/UI/Screenplay/Tasks/AddTodoItem.cs`
+- `Tests/Framework/UI/Screenplay/Questions/TheCount.cs`, `TheTodoItems.cs`
 
-### Example 2: Complete API Feature (PokeAPI)
-
-**Feature**: `Tests/Features/ApiFeatures/pokemon_api.feature`
-```gherkin
-@allure.parentSuite:API-Tests
-@allure.suite:Pokemon-API
-Feature: Pokemon API Testing
-  
-  @api @smoke
-  Scenario: Retrieve Pokemon by name
-    When I request pokemon "pikachu"
-    Then the response status should be 200
-    And the pokemon should have "electric" type
-```
-
-**Step Bindings**: `Tests/StepBindings/StepBindings/Api/PokemonApiStepBindings.cs`
-```csharp
-[When(@"I request pokemon ""(.*)""")]
-public async Task WhenIRequestPokemon(string pokemonName)
-{
-    var result = await _pokeApiClient.GetPokemonByNameAsync(pokemonName);
-    _lastPokemon = result.Data;
-    _lastResponse = result.Response;
-}
-
-[Then(@"the pokemon should have ""(.*)"" type")]
-public async Task ThenThePokemonShouldHaveType(string expectedType)
-{
-    var hasType = _lastPokemon!.Types.Any(t => t.Type.Name == expectedType);
-    Assert.That(hasType, Is.True);
-}
-```
-
-**Complete Files**:
-- Client: `Tests/Framework/API/Clients/PokeApiClient.cs`
-- Model: `Tests/Framework/API/Models/Pokemon.cs`
-- Question: `Tests/Framework/API/Questions/ThePokemon.cs` ✨
-
-### Example 3: Unit Testing (Framework Components)
-
-**Feature**: `Tests/Features/UnitFeatures/screenplay_pattern_tests.feature`
-```gherkin
-@allure.parentSuite:Unit-Tests
-@allure.suite:Framework-Components
-Feature: Screenplay Pattern Components Unit Tests
-  
-  @unit @smoke
-  Scenario: TheText Question returns correct element text
-    Given I have a page with a text element
-    When I ask TheText question for that element
-    Then the question should return the correct text content
-```
-
-**Step Bindings**: `Tests/StepBindings/StepBindings/Unit/ScreenplayPatternStepBindings.cs`
+**More Examples**: API testing (Pokemon), Unit testing (Framework), see [STEP-BINDINGS-ARCHITECTURE.md](STEP-BINDINGS-ARCHITECTURE.md) sections "Usage Example" and "Best Practices".
 
 ---
 
 ## ⚠️ Anti-Patterns
 
-### ❌ Don't: Put step bindings in wrong location
-
-```
-Tests/Framework/UI/StepBindings/  ← WRONG
-Tests/StepBindings/     ← WRONG
-```
-
-### ✅ Do: Use correct location
-
-```
-Tests/StepBindings/StepBindings/Ui/  ← CORRECT
-```
-
-### ❌ Don't: Use magic strings in step bindings
-
+### 1. ❌ Magic Strings → ✅ Centralized Locators
 ```csharp
-await Actor!.Page.ClickAsync("#submit");  // ❌ Magic string
+// ❌ Don't
+await Actor!.Page.ClickAsync("#submit");
+
+// ✅ Do
+await Actor!.Page.ClickAsync(LoginLocators.SubmitButton);
 ```
 
-### ✅ Do: Use centralized locators
-
+### 2. ❌ Direct Playwright Calls → ✅ Tasks/Questions
 ```csharp
-await Actor!.Page.ClickAsync(LoginLocators.SubmitButton);  // ✅
+// ❌ Don't (in step bindings)
+await Actor!.Page.FillAsync("#username", "test");
+var count = await Actor!.Page.Locator(".item").CountAsync();
+
+// ✅ Do
+await Actor!.AttemptsTo(LoginToApplication.WithCredentials("test", "pass"));
+var count = await Actor!.Asks(TheCount.Of(".item"));
 ```
 
-### ❌ Don't: Mix concerns in Page Objects
-
+### 3. ❌ Assertions in Page Objects → ✅ Questions in Step Bindings
 ```csharp
+// ❌ Don't (in Page Object)
 public async Task LoginAndVerify(string user, string pass)
 {
     await LoginAsync(user, pass);
-    Assert.That(await IsLoggedIn(), Is.True);  // ❌ Assertion in PO
+    Assert.That(await IsLoggedIn(), Is.True);  // Wrong layer
 }
-```
 
-### ✅ Do: Separate actions and assertions
-
-```csharp
-// Page Object - Actions only
+// ✅ Do (separate concerns)
+// Page: Actions only
 public async Task LoginAsync(string user, string pass) { }
 
-// Step Binding - Assertions with Questions
+// Step Binding: Assertions with Questions
 var isLoggedIn = await Actor!.Asks(TheVisibility.Of(".user-menu"));
 Assert.That(isLoggedIn, Is.True);
-```
-
-### ❌ Don't: Use direct Playwright calls in step bindings
-
-```csharp
-await Actor!.Page.FillAsync("#username", "test");  // ❌ Direct call
-```
-
-### ✅ Do: Use Tasks for actions
-
-```csharp
-await Actor!.AttemptsTo(LoginToApplication.WithCredentials("test", "pass"));
-```
-
-### ❌ Don't: Create Questions without proper naming
-
-```csharp
-public class TextQuestion : IQuestion<string>  // ❌ Generic name
-public class GetText : IQuestion<string>       // ❌ Doesn't follow pattern
-```
-
-### ✅ Do: Follow The{Property} naming pattern
-
-```csharp
-public class TheText : IQuestion<string>       // ✅
-public class TheVisibility : IQuestion<bool>   // ✅
-public class TheTodoItems : IQuestion<List<string>>  // ✅
 ```
 
 ---
