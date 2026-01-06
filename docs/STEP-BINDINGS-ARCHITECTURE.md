@@ -194,7 +194,7 @@ public class RestfulBookerStepBindings : ApiStepBindingsBase
 ### Folder Structure
 
 ```
-Tests/StepBindings/
+Tests/StepBindings/StepBindings/
 ├── Base/                                   # Base classes with automatic evidence capture
 │   ├── ApiStepBindingsBase.cs             # Automatic API logging
 │   └── UiStepBindingsBase.cs              # Automatic screenshot/video
@@ -213,6 +213,8 @@ Tests/StepBindings/
     ├── TestDataFactoryStepBindings.cs
     └── UtilitiesStepBindings.cs
 ```
+
+**Location**: `Tests/StepBindings/StepBindings/`
 
 ### Design Principles
 
@@ -233,7 +235,7 @@ Tests/StepBindings/
 
 ### Assembly Scanning Configuration
 
-**Location**: `Tests/Core/DependencyInjection/DependencyInjectionConfig.cs`
+**Location**: `Tests/Framework/Core/DependencyInjection/DependencyInjectionConfig.cs`
 
 Step bindings are automatically registered using Autofac assembly scanning:
 

@@ -183,8 +183,6 @@ QuantumTest-Suite/
 - ✅ More intuitive navigation and onboarding
 - ✅ Professional structure aligned with industry standards
 - ✅ Preserves all functionality (Allure, hooks, logging)
-- Fluent API design for readable assertions
-- Integrates seamlessly with the Screenplay Pattern
 
 ---
 

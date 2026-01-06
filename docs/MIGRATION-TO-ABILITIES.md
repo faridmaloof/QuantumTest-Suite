@@ -572,7 +572,7 @@ public async Task Cleanup()
   - [ ] Revisar esta guía de migración
 
 - [ ] **Setup Inicial**
-  - [ ] Validar que Abilities existen en proyecto (Tests/UI/Screenplay/Abilities/)
+  - [ ] Validar que Abilities existen en proyecto (Tests/Framework/UI/Screenplay/Abilities/)
   - [ ] Validar Dapper package instalado (para AccessDatabase)
 
 - [ ] **Migración Gradual**
