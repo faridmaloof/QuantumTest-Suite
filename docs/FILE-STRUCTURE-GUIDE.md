@@ -53,8 +53,82 @@ QuantumTest-Suite/
 │   │   └── UnitFeatures/                  # Unit test scenarios
 │   │       └── *.feature                  # snake_case naming
 │   │
-│   ├── Tests/                             # Test execution layer
-│   │   └── StepBindings/                  # Step definitions (Reqnroll bindings)
+│   ├── Framework/                         # 🆕 Framework code (reusable components)
+│   │   ├── API/                           # API testing components
+│   │   │   ├── Clients/                   # HTTP clients for different APIs
+│   │   │   │   └── *Client.cs             # PascalCase + Client suffix
+│   │   │   ├── Models/                    # Response/request models
+│   │   │   │   └── *.cs                   # PascalCase, matches API structure
+│   │   │   ├── Questions/                 # ✨ API-specific questions
+│   │   │   │   ├── IApiQuestion.cs        # Base interface for API questions
+│   │   │   │   ├── TheResponseStatus.cs   # Check HTTP status codes
+│   │   │   │   ├── TheResponseBody.cs     # Parse response body
+│   │   │   │   └── ThePokemon.cs          # Domain-specific questions
+│   │   │   ├── Helpers/                   # API helper utilities
+│   │   │   │   ├── ApiRequestContextFactory.cs
+│   │   │   │   └── ApiResponse.cs
+│   │   │   └── Endpoints/                 # API endpoint definitions
+│   │   │       └── ApiEndpoints.cs
+│   │   │
+│   │   ├── UI/                            # UI automation components
+│   │   │   ├── Pages/                     # Page Object Model (POM)
+│   │   │   │   └── *Page.cs               # PascalCase + Page suffix
+│   │   │   ├── Locators/                  # Centralized element locators
+│   │   │   │   └── *Locators.cs           # PascalCase + Locators suffix (static class)
+│   │   │   ├── Screenplay/                # Screenplay Pattern implementation
+│   │   │   │   ├── Actors/                # Actor class (who performs actions)
+│   │   │   │   │   └── Actor.cs
+│   │   │   │   ├── Abilities/             # Abilities (what actors can do)
+│   │   │   │   │   ├── IAbility.cs        # Base interface
+│   │   │   │   │   ├── BrowseTheWeb.cs    # Browser interactions
+│   │   │   │   │   ├── RememberData.cs    # In-memory data storage
+│   │   │   │   │   ├── AccessDatabase.cs  # Database operations
+│   │   │   │   │   ├── CallApiEndpoint.cs # API interactions
+│   │   │   │   │   └── ReadConfiguration.cs # Configuration access
+│   │   │   │   ├── Tasks/                 # Tasks (high-level actions)
+│   │   │   │   │   └── *.cs               # VerbNoun pattern (e.g., NavigateToPlaywrightDemo, AddTodoItem)
+│   │   │   │   └── Questions/             # ✨ Questions (data retrieval & assertions)
+│   │   │   │       ├── IQuestion.cs       # Generic question interface
+│   │   │   │       ├── TheText.cs         # Get text from elements
+│   │   │   │       ├── TheVisibility.cs   # Check element visibility
+│   │   │   │       ├── TheValue.cs        # Get input values
+│   │   │   │       ├── TheCount.cs        # Count elements
+│   │   │   │       ├── TheTodoItems.cs    # Get todo list items
+│   │   │   │       ├── TheCurrentUrl.cs   # Get current page URL
+│   │   │   │       └── TheTitle.cs        # Get page title
+│   │   │   └── Drivers/                   # Browser/driver management
+│   │   │       └── PlaywrightDriver.cs
+│   │   │
+│   │   └── Core/                          # Core framework utilities
+│   │       ├── Config/                    # Configuration management
+│   │       │   ├── ConfigManager.cs
+│   │       │   └── AppSettings.cs
+│   │       ├── Context/                   # Test context (dependency injection)
+│   │       │   └── TestContexts.cs
+│   │       ├── DependencyInjection/       # DI container configuration
+│   │       │   └── DependencyInjectionConfig.cs
+│   │       ├── Hooks/                     # Test lifecycle hooks
+│   │       │   └── TestHooks.cs
+│   │       ├── Logging/                   # Logging infrastructure
+│   │       │   └── ConsoleLogger.cs
+│   │       ├── Models/                    # Shared models
+│   │       │   └── TestModels.cs
+│   │       ├── Reporting/                 # Allure reporting
+│   │       │   ├── AllureHelper.cs
+│   │       │   ├── AllureEnvironmentWriter.cs
+│   │       │   ├── AllureCategoriesWriter.cs
+│   │       │   └── AllureExecutorWriter.cs
+│   │       ├── Services/                  # Shared services
+│   │       │   ├── IApiServices.cs
+│   │       │   └── ApiServices.cs
+│   │       └── Utilities/                 # Helper utilities
+│   │           ├── RetryHelper.cs
+│   │           ├── WaitHelper.cs
+│   │           ├── ContextFactory.cs
+│   │           └── TestTimeouts.cs
+│   │
+│   ├── StepBindings/                      # 🆕 Step definitions (Reqnroll bindings)
+│   │   └── StepBindings/
 │   │       ├── Base/                      # Base classes for step bindings
 │   │       │   ├── UiStepBindingsBase.cs
 │   │       │   └── ApiStepBindingsBase.cs
@@ -65,77 +139,50 @@ QuantumTest-Suite/
 │   │       └── Unit/                      # Unit test step bindings
 │   │           └── *StepBindings.cs       # PascalCase + StepBindings suffix
 │   │
-│   ├── UI/                                # UI automation components
-│   │   ├── Pages/                         # Page Object Model (POM)
-│   │   │   └── *Page.cs                   # PascalCase + Page suffix
-│   │   ├── Locators/                      # Centralized element locators
-│   │   │   └── *Locators.cs               # PascalCase + Locators suffix (static class)
-│   │   ├── Screenplay/                    # Screenplay Pattern implementation
-│   │   │   ├── Actors/                    # Actor class (who performs actions)
-│   │   │   │   └── Actor.cs
-│   │   │   ├── Abilities/                 # Abilities (what actors can do)
-│   │   │   │   ├── IAbility.cs            # Base interface
-│   │   │   │   ├── RememberData.cs        # In-memory data storage
-│   │   │   │   ├── AccessDatabase.cs      # Database operations
-│   │   │   │   ├── CallApiEndpoint.cs     # API interactions
-│   │   │   │   └── ReadConfiguration.cs   # Configuration access
-│   │   │   ├── Tasks/                     # Tasks (high-level actions)
-│   │   │   │   └── *.cs                   # VerbNoun pattern (e.g., LoginToApp, FillForm)
-│   │   │   └── Questions/                 # ✨ Questions (data retrieval & assertions)
-│   │   │       ├── IQuestion.cs           # Generic question interface
-│   │   │       ├── TheText.cs             # Get text from elements
-│   │   │       ├── TheVisibility.cs       # Check element visibility
-│   │   │       ├── TheValue.cs            # Get input values
-│   │   │       ├── TheCount.cs            # Count elements
-│   │   │       ├── TheCurrentUrl.cs       # Get current page URL
-│   │   │       └── TheTitle.cs            # Get page title
-│   │   └── Drivers/                       # Browser/driver management
-│   │       └── PlaywrightDriver.cs
+│   ├── TestData/                          # 🆕 Test data (renamed from Data)
+│   │   ├── Factories/                     # Data factories (test data generation)
+│   │   │   ├── BookingFactory.cs
+│   │   │   └── UserFactory.cs
+│   │   └── DataProviders/                 # Data providers (external data sources)
+│   │       └── JsonDataProvider.cs
 │   │
-│   ├── API/                               # API testing components
-│   │   ├── Clients/                       # HTTP clients for different APIs
-│   │   │   └── *Client.cs                 # PascalCase + Client suffix
-│   │   ├── Models/                        # Response/request models
-│   │   │   └── *.cs                       # PascalCase, matches API structure
-│   │   ├── Questions/                     # ✨ API-specific questions
-│   │   │   ├── IApiQuestion.cs            # API question interface
-│   │   │   ├── TheResponseStatus.cs       # Get HTTP status code
-│   │   │   ├── TheResponseBody.cs         # Get & deserialize response body
-│   │   │   └── The*.cs                    # Custom API questions
-│   │   └── Helpers/                       # API utilities
-│   │       └── ApiHelpers.cs
-│   │
-│   ├── Core/                              # Framework core components
-│   │   ├── Config/                        # Configuration management
-│   │   │   ├── AppSettings.cs             # Settings model
-│   │   │   └── ConfigManager.cs           # Configuration loader
-│   │   ├── Hooks/                         # Reqnroll hooks (Before/After)
-│   │   │   ├── TestHooks.cs               # Global setup/teardown
-│   │   │   └── UiTestHooks.cs             # UI-specific hooks
-│   │   ├── Reporting/                     # Allure reporting helpers
-│   │   │   └── AllureHelper.cs
-│   │   └── DependencyInjection/           # IoC container configuration
-│   │       └── DependencyInjectionConfig.cs
+│   ├── Reports/                           # Generated test reports
+│   │   └── allure-results/                # Allure report output
 │   │
 │   └── appsettings.json                   # Environment configuration
 │
 ├── docs/                                  # Documentation
 │   ├── ARCHITECTURE.md                    # Framework architecture overview
-│   ├── ABILITIES-GUIDE.md                 # Screenplay Abilities guide
-│   ├── QUESTIONS-GUIDE.md                 # ✨ Questions Pattern guide
-│   ├── ALLURE-QUICKSTART.md               # Allure reporting setup
-│   └── FILE-STRUCTURE-GUIDE.md            # This document
+│   ├── FILE-STRUCTURE-GUIDE.md            # This document
+│   ├── STEP-BINDINGS-ARCHITECTURE.md      # Step bindings architecture
+│   ├── FRAMEWORK_STATUS.md                # Framework quality rating
+│   └── REFACTOR_PROPOSAL.md               # Refactoring documentation
 │
 └── QuantumTestSuite.Tests.csproj          # Project file
 
 ```
 
-### ✨ New in Version 2.0: Questions Pattern
+### ✨ Changes in Version 2.0
 
-The framework now includes a comprehensive **Questions** layer for data retrieval and assertions:
+**Directory Restructuring (January 2026)**:
 
-- **UI Questions**: `Tests/UI/Screenplay/Questions/` - For UI element queries
-- **API Questions**: `Tests/API/Questions/` - For API response assertions
+1. **Framework/** - New folder grouping all reusable framework code:
+   - `Tests/API` → `Tests/Framework/API` (namespace: `QuantumTestSuite.Framework.API`)
+   - `Tests/Core` → `Tests/Framework/Core` (namespace: `QuantumTestSuite.Framework.Core`)
+   - `Tests/UI` → `Tests/Framework/UI` (namespace: `QuantumTestSuite.Framework.UI`)
+
+2. **StepBindings/** - Renamed from `Tests/Tests` for clarity:
+   - `Tests/Tests` → `Tests/StepBindings` (namespace: `QuantumTestSuite.StepBindings`)
+
+3. **TestData/** - Renamed from `Data` for better semantics:
+   - `Tests/Data` → `Tests/TestData` (namespace: `QuantumTestSuite.TestData`)
+
+**Benefits**:
+- ✅ Clear separation between framework code and test code
+- ✅ Eliminates confusing "Tests/Tests" nesting
+- ✅ More intuitive navigation and onboarding
+- ✅ Professional structure aligned with industry standards
+- ✅ Preserves all functionality (Allure, hooks, logging)
 - Fluent API design for readable assertions
 - Integrates seamlessly with the Screenplay Pattern
 
@@ -362,7 +409,7 @@ using QuantumTestSuite.UI.Screenplay.Tasks;
 using QuantumTestSuite.UI.Screenplay.Questions;
 using Reqnroll;
 
-namespace QuantumTestSuite.Tests.StepBindings.Ui;
+namespace QuantumTestSuite.StepBindings.Ui;
 
 [Binding]
 [AllureParentSuite("UI Tests")]
@@ -418,7 +465,7 @@ using Microsoft.Playwright;
 using QuantumTestSuite.UI.Locators;
 using QuantumTestSuite.Core.Config;
 
-namespace QuantumTestSuite.UI.Pages;
+namespace QuantumTestSuite.Framework.UI.Pages;
 
 /// <summary>
 /// Page Object for [PageName] page
@@ -463,7 +510,7 @@ public class PageNamePage
 **Location**: `Tests/UI/Locators/*Locators.cs`
 
 ```csharp
-namespace QuantumTestSuite.UI.Locators;
+namespace QuantumTestSuite.Framework.UI.Locators;
 
 /// <summary>
 /// Centralized locators for [PageName] page
@@ -496,7 +543,7 @@ using QuantumTestSuite.UI.Pages;
 using QuantumTestSuite.UI.Screenplay.Actors;
 using QuantumTestSuite.Core.Config;
 
-namespace QuantumTestSuite.UI.Screenplay.Tasks;
+namespace QuantumTestSuite.Framework.UI.Screenplay.Tasks;
 
 /// <summary>
 /// Task to [action description]
@@ -528,7 +575,7 @@ public class TaskName : ITask
 **Location**: `Tests/UI/Screenplay/Questions/*.cs`
 
 ```csharp
-namespace QuantumTestSuite.UI.Screenplay.Questions;
+namespace QuantumTestSuite.Framework.UI.Screenplay.Questions;
 
 /// <summary>
 /// Question to retrieve [description]
@@ -562,7 +609,7 @@ using System.Net.Http;
 using System.Text.Json;
 using QuantumTestSuite.API.Models;
 
-namespace QuantumTestSuite.API.Clients;
+namespace QuantumTestSuite.Framework.API.Clients;
 
 /// <summary>
 /// Client for [API Name]
@@ -607,7 +654,7 @@ public class ApiNameClient
 ```csharp
 using QuantumTestSuite.UI.Screenplay.Abilities;
 
-namespace QuantumTestSuite.API.Questions;
+namespace QuantumTestSuite.Framework.API.Questions;
 
 /// <summary>
 /// Question to retrieve [description] from API response
@@ -1178,7 +1225,7 @@ using QuantumTestSuite.UI.Pages;
 using QuantumTestSuite.UI.Screenplay.Tasks;
 using Reqnroll;
 
-namespace QuantumTestSuite.Tests.StepBindings.Ui;
+namespace QuantumTestSuite.StepBindings.Ui;
 
 /// <summary>
 /// Step bindings for [Feature Name]
@@ -1235,7 +1282,7 @@ using Microsoft.Playwright;
 using QuantumTestSuite.UI.Locators;
 using QuantumTestSuite.Core.Config;
 
-namespace QuantumTestSuite.UI.Pages;
+namespace QuantumTestSuite.Framework.UI.Pages;
 
 /// <summary>
 /// Page Object for [Page Name] page
@@ -1277,7 +1324,7 @@ public class [PageName]Page
 ### 4. Locators Class Template
 
 ```csharp
-namespace QuantumTestSuite.UI.Locators;
+namespace QuantumTestSuite.Framework.UI.Locators;
 
 /// <summary>
 /// Centralized locators for [Page Name] page
@@ -1305,7 +1352,7 @@ using QuantumTestSuite.UI.Pages;
 using QuantumTestSuite.UI.Screenplay.Actors;
 using QuantumTestSuite.Core.Config;
 
-namespace QuantumTestSuite.UI.Screenplay.Tasks;
+namespace QuantumTestSuite.Framework.UI.Screenplay.Tasks;
 
 /// <summary>
 /// Task: [Action description]
@@ -1333,7 +1380,7 @@ public class [Action][Context] : ITask
 ### 6. ITask Interface (Reference Only - DO NOT CREATE)
 
 ```csharp
-namespace QuantumTestSuite.UI.Screenplay.Tasks;
+namespace QuantumTestSuite.Framework.UI.Screenplay.Tasks;
 
 public interface ITask
 {

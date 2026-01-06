@@ -335,7 +335,7 @@ using QuantumTestSuite.Tests.StepBindings.Base;
 using Microsoft.Extensions.Logging;
 using Reqnroll;
 
-namespace QuantumTestSuite.Tests.StepBindings.Api
+namespace QuantumTestSuite.StepBindings.Api
 {
     [Binding]
     public class NewApiStepBindings : ApiStepBindingsBase
@@ -384,7 +384,7 @@ using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Reqnroll;
 
-namespace QuantumTestSuite.Tests.StepBindings.Ui
+namespace QuantumTestSuite.StepBindings.Ui
 {
     [Binding]
     public class NewPageStepBindings : UiStepBindingsBase
