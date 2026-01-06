@@ -10,191 +10,26 @@ This document describes the modular architecture of step bindings in QuantumTest
 
 **Location**: `Tests/StepBindings/Base/UiStepBindingsBase.cs`
 
-Base class for all UI-related step bindings that provides automatic screenshot and video capture.
+**Purpose**: Automatic screenshot/video capture for all UI steps
 
-**Key Features**:
-- Automatic screenshot capture on every step (Given/When/Then)
-- Automatic video recording of entire test execution
-- Before/After step screenshot hooks for assertions
-- OnFailure screenshot capture for debugging
-- Actor initialization with Playwright/Browser management
-
-**Methods**:
-
-```csharp
-// Execute Given steps with automatic screenshot after action
-protected async Task ExecuteGivenAsync(Func<Task> action)
-
-// Execute When steps with automatic screenshot after action
-protected async Task ExecuteWhenAsync(Func<Task> action)
-
-// Execute Then steps with screenshots before and after assertion
-protected async Task ExecuteThenAsync(Func<Task> assertion)
-
-// Helper to initialize Actor, Browser, Context, Page
-protected async Task EnsureActorAsync(string actorName)
-
-// Helper for navigation
-protected async Task NavigateToAsync(string url)
-
-// Execute Screenplay tasks with automatic screenshot
-protected async Task PerformTaskAsync(ITask task)
-```
-
-**Usage Example**:
-
-```csharp
-[Binding]
-public class SauceDemoStepBindings : UiStepBindingsBase
-{
-    public SauceDemoStepBindings(
-        UiTestContext context,
-        IPlaywrightDriver playwrightDriver,
-        ILoggerFactory loggerFactory)
-        : base(context, playwrightDriver, loggerFactory)
-    {
-    }
-
-    [Given(@"el usuario está en la página de SauceDemo")]
-    public async Task GivenElUsuarioEstaEnSauceDemo()
-    {
-        await ExecuteGivenAsync(async () =>
-        {
-            await EnsureActorAsync("QA");
-            var page = new SauceDemoLoginPage(Context.Page!);
-            await page.NavigateAsync();
-        });
-        // Screenshot captured automatically by ExecuteGivenAsync
-    }
-
-    [When(@"ingresa credenciales válidas")]
-    public async Task WhenIngresaCredencialesValidas()
-    {
-        await ExecuteWhenAsync(async () =>
-        {
-            await PerformTaskAsync(new LoginToSauceDemo("standard_user", "secret_sauce"));
-        });
-        // Screenshot captured automatically by ExecuteWhenAsync
-    }
-
-    [Then(@"debe ver la página de inventario")]
-    public async Task ThenDebeVerPaginaInventario()
-    {
-        await ExecuteThenAsync(async () =>
-        {
-            // ✅ BEST PRACTICE: Use Questions for assertions
-            var isVisible = await Actor!.Asks(TheVisibility.Of("#inventory_container"));
-            Assert.That(isVisible, Is.True, "Inventory page should be visible");
-        });
-        // Screenshots captured before and after assertion automatically
-    }
-}
-```
+**Key Methods**: `ExecuteGivenAsync()`, `ExecuteWhenAsync()`, `ExecuteThenAsync()`, `EnsureActorAsync()`, `PerformTaskAsync()`
 
 ### ApiStepBindingsBase
 
 **Location**: `Tests/StepBindings/Base/ApiStepBindingsBase.cs`
 
-Base class for all API-related step bindings that provides automatic request/response logging to Allure reports.
+**Purpose**: Automatic request/response logging to Allure
 
-**Key Features**:
-- Automatic request logging (method, URL, headers, body as JSON)
-- Automatic response logging (status code, headers, body)
-- JSON body detection and formatting
-- Exception handling with detailed error logging
-- Generic and non-generic overloads for flexibility
+**Key Methods**: `ExecuteApiCallAsync<T>()`, `ExecuteApiCallAsync(object)`, `FormatHeaders()`
 
-**Methods**:
-
-```csharp
-// Execute API call with automatic logging (generic version)
-protected async Task<ApiResponse<T>> ExecuteApiCallAsync<T>(
-    string method,
-    string url,
-    Func<Task<ApiResponse<T>>> apiCall,
-    object? requestBody = null,
-    Dictionary<string, string>? headers = null)
-
-// Execute API call with automatic logging (non-generic overload)
-protected async Task<ApiResponse<object>> ExecuteApiCallAsync(
-    string method,
-    string url,
-    Func<Task<ApiResponse<object>>> apiCall,
-    object? requestBody = null,
-    Dictionary<string, string>? headers = null)
-
-// Helper to format headers for display
-protected string FormatHeaders(IDictionary<string, string>? headers)
-```
-
-**Usage Example**:
-
-```csharp
-[Binding]
-public class RestfulBookerStepBindings : ApiStepBindingsBase
-{
-    private readonly IBookingService _bookingService;
-
-    public RestfulBookerStepBindings(
-        ApiTestContext context,
-        IBookingService bookingService,
-        ILoggerFactory loggerFactory)
-        : base(context, loggerFactory)
-    {
-        _bookingService = bookingService;
-    }
-
-    [Given(@"un payload válido de booking")]
-    public void GivenUnPayloadValidoDeBooking()
-    {
-        Context.BookingRequest = new BookingRequest
-        {
-            Firstname = "John",
-            Lastname = "Doe",
-            Totalprice = 100,
-            Depositpaid = true,
-            Bookingdates = new BookingDates
-            {
-                Checkin = "2024-01-01",
-                Checkout = "2024-01-05"
-            },
-            Additionalneeds = "Breakfast"
-        };
-    }
-
-    [When(@"se envía POST \/booking")]
-    public async Task WhenSeEnviaPostBooking()
-    {
-        var booking = Context.BookingRequest!;
-        
-        // Request and response automatically logged to Allure
-        var response = await ExecuteApiCallAsync(
-            "POST",
-            $"{Settings.Apis.RestfulBooker}/booking",
-            () => _bookingService.CreateBookingAsync(booking),
-            requestBody: booking);
-
-        Context.BookingResponse = response;
-    }
-
-    [Then(@"el response contiene bookingid")]
-    public void ThenElResponseContieneBookingid()
-    {
-        var response = Context.BookingResponse!;
-        var bookingId = response.Body?.GetProperty("bookingid").GetInt32();
-        
-        Assert.That(bookingId, Is.GreaterThan(0),
-            "Booking ID should be greater than 0");
-    }
-}
-```
+📖 **Complete Implementation**: See [FILE-STRUCTURE-GUIDE.md](FILE-STRUCTURE-GUIDE.md) for full code templates.
 
 ## Modular Organization
 
 ### Folder Structure
 
 ```
-Tests/StepBindings/
+Tests/StepBindings/StepBindings/
 ├── Base/                                   # Base classes with automatic evidence capture
 │   ├── ApiStepBindingsBase.cs             # Automatic API logging
 │   └── UiStepBindingsBase.cs              # Automatic screenshot/video
@@ -213,6 +48,8 @@ Tests/StepBindings/
     ├── TestDataFactoryStepBindings.cs
     └── UtilitiesStepBindings.cs
 ```
+
+**Location**: `Tests/StepBindings/StepBindings/`
 
 ### Design Principles
 
@@ -233,7 +70,7 @@ Tests/StepBindings/
 
 ### Assembly Scanning Configuration
 
-**Location**: `Tests/Core/DependencyInjection/DependencyInjectionConfig.cs`
+**Location**: `Tests/Framework/Core/DependencyInjection/DependencyInjectionConfig.cs`
 
 Step bindings are automatically registered using Autofac assembly scanning:
 
@@ -256,180 +93,31 @@ builder.RegisterAssemblyTypes(typeof(DependencyInjectionConfig).Assembly)
 
 ## Evidence Capture Details
 
-### Screenshot Strategy (UI Tests)
+**UI Tests**: Auto screenshots (after Given/When, before & after Then, on failure), videos (full scenario)
 
-| Step Type | Before Screenshot | After Screenshot | On Failure |
-|-----------|------------------|------------------|------------|
-| Given     | ❌               | ✅               | ✅         |
-| When      | ❌               | ✅               | ✅         |
-| Then      | ✅               | ✅               | ✅         |
+**API Tests**: Auto request/response JSON with headers, method, URL attached to Allure
 
-**File Naming Convention**:
-- Given: `after_given_<timestamp>.png`
-- When: `after_when_<timestamp>.png`
-- Then: `before_then_<timestamp>.png`, `after_then_<timestamp>.png`
-- Failure: `on_failure_<timestamp>.png`
-
-### Video Recording (UI Tests)
-
-- **When**: Automatically started when Actor is initialized
-- **Format**: WebM (Chromium/Chrome), MP4 fallback
-- **Location**: `Tests/Reports/AllureResults/videos/`
-- **Attachment**: Automatically attached to Allure report on test completion
-
-### API Logging (API Tests)
-
-**Request Details**:
-```json
-{
-  "method": "POST",
-  "url": "https://restful-booker.herokuapp.com/booking",
-  "headers": {
-    "Content-Type": "application/json",
-    "Accept": "application/json"
-  },
-  "body": {
-    "firstname": "John",
-    "lastname": "Doe",
-    "totalprice": 100,
-    "depositpaid": true,
-    "bookingdates": {
-      "checkin": "2024-01-01",
-      "checkout": "2024-01-05"
-    }
-  }
-}
-```
-
-**Response Details**:
-```json
-{
-  "statusCode": 200,
-  "headers": {
-    "Content-Type": "application/json",
-    "Server": "Cowboy"
-  },
-  "body": {
-    "bookingid": 123,
-    "booking": { ... }
-  }
-}
-```
+📖 **Configuration**: See [ALLURE-QUICKSTART.md](ALLURE-QUICKSTART.md) for screenshot options, video settings, and troubleshooting.
 
 ## Adding New Step Bindings
 
 ### For API Tests
 
-1. Create new file in `Tests/StepBindings/Api/`
+1. Create in `Tests/StepBindings/Api/`
 2. Inherit from `ApiStepBindingsBase`
-3. Inject required services via constructor
-4. Use `ExecuteApiCallAsync()` for all API calls
-5. No need to modify DI config (auto-registered)
+3. Use `ExecuteApiCallAsync()` for all API calls (automatic logging)
+4. Auto-registered via assembly scanning
 
-**Example**:
-
-```csharp
-using QuantumTestSuite.Core.Context;
-using QuantumTestSuite.Core.Services;
-using QuantumTestSuite.Tests.StepBindings.Base;
-using Microsoft.Extensions.Logging;
-using Reqnroll;
-
-namespace QuantumTestSuite.Tests.StepBindings.Api
-{
-    [Binding]
-    public class NewApiStepBindings : ApiStepBindingsBase
-    {
-        private readonly INewService _newService;
-
-        public NewApiStepBindings(
-            ApiTestContext context,
-            INewService newService,
-            ILoggerFactory loggerFactory)
-            : base(context, loggerFactory)
-        {
-            _newService = newService;
-        }
-
-        [When(@"llamo al nuevo endpoint")]
-        public async Task WhenLlamoAlNuevoEndpoint()
-        {
-            var response = await ExecuteApiCallAsync(
-                "GET",
-                $"{Settings.Apis.NewApi}/endpoint",
-                () => _newService.GetDataAsync());
-
-            Context.LastResponse = response.Body;
-        }
-    }
-}
-```
+📖 **Template**: See [FILE-STRUCTURE-GUIDE.md](FILE-STRUCTURE-GUIDE.md) "Code Templates" section.
 
 ### For UI Tests
 
-1. Create new file in `Tests/StepBindings/Ui/`
+1. Create in `Tests/StepBindings/Ui/`
 2. Inherit from `UiStepBindingsBase`
-3. Inject `UiTestContext` and `IPlaywrightDriver` via constructor
-4. Use `ExecuteGivenAsync()`, `ExecuteWhenAsync()`, `ExecuteThenAsync()`
-5. No need to modify DI config (auto-registered)
+3. Use `ExecuteGivenAsync/WhenAsync/ThenAsync()` (automatic screenshots)
+4. Auto-registered via assembly scanning
 
-**Example**:
-
-```csharp
-using QuantumTestSuite.Core.Context;
-using QuantumTestSuite.UI.Drivers;
-using QuantumTestSuite.UI.Pages;
-using QuantumTestSuite.Tests.StepBindings.Base;
-using Microsoft.Extensions.Logging;
-using NUnit.Framework;
-using Reqnroll;
-
-namespace QuantumTestSuite.Tests.StepBindings.Ui
-{
-    [Binding]
-    public class NewPageStepBindings : UiStepBindingsBase
-    {
-        public NewPageStepBindings(
-            UiTestContext context,
-            IPlaywrightDriver playwrightDriver,
-            ILoggerFactory loggerFactory)
-            : base(context, playwrightDriver, loggerFactory)
-        {
-        }
-
-        [Given(@"usuario está en nueva página")]
-        public async Task GivenUsuarioEstaEnNuevaPagina()
-        {
-            await ExecuteGivenAsync(async () =>
-            {
-                await EnsureActorAsync("QA");
-                var page = new NewPage(Context.Page!);
-                await page.NavigateAsync();
-            });
-        }
-
-        [When(@"realiza acción")]
-        public async Task WhenRealizaAccion()
-        {
-            await ExecuteWhenAsync(async () =>
-            {
-                await PerformTaskAsync(new NewTask(...));
-            });
-        }
-
-        [Then(@"debe ver resultado")]
-        public async Task ThenDebeVerResultado()
-        {
-            await ExecuteThenAsync(async () =>
-            {
-                var page = new NewPage(Context.Page!);
-                var isVisible = await page.IsResultVisibleAsync();
-                Assert.That(isVisible, Is.True);
-            });
-        }
-    }
-}
-```
+📖 **Template**: See [FILE-STRUCTURE-GUIDE.md](FILE-STRUCTURE-GUIDE.md) "Code Templates" section.
 
 ## Best Practices
 
@@ -518,163 +206,27 @@ StepBindings/Api/
 
 ## Best Practices for Then Steps ✨
 
-### ✅ DO: Use Questions Pattern for Assertions
+### ✅ DO: Use Questions Pattern
 
-Questions represent "what the actor sees" - data retrieval for verification.
+Questions = read-only queries for assertions.
 
-**UI Questions Examples**:
-```csharp
-[Then(@"the list should contain (.*) items")]
-public async Task ThenTheListShouldContainItems(int expectedCount)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ✅ Use Questions pattern
-        var actualCount = await Actor!.Asks(TheCount.Of(".todo-item"));
-        Assert.That(actualCount, Is.EqualTo(expectedCount));
-    });
-}
+**Examples**:
+- UI: `await Actor!.Asks(TheCount.Of(".todo-item"))`
+- API: `await Actor!.Asks(TheResponseStatus.Code)`
 
-[Then(@"the heading should display ""(.*)""")]
-public async Task ThenTheHeadingShouldDisplay(string expectedText)
-{
-    await ExecuteThenAsync(async () =>
-{
-        // ✅ Use TheText question
-        var actualText = await Actor!.Asks(TheText.Of("h1.title"));
-        Assert.That(actualText, Is.EqualTo(expectedText));
-    });
-}
-
-[Then(@"the button should be visible")]
-public async Task ThenTheButtonShouldBeVisible()
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ✅ Use TheVisibility question
-        var isVisible = await Actor!.Asks(TheVisibility.Of("#submit-btn"));
-        Assert.That(isVisible, Is.True);
-    });
-}
-
-[Then(@"the list should include ""(.*)""")]
-public async Task ThenTheListShouldInclude(string expectedItem)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ✅ Use domain-specific question
-        var items = await Actor!.Asks(TheTodoItems.All());
-        Assert.That(items, Does.Contain(expectedItem));
-    });
-}
-```
-
-**API Questions Examples**:
-```csharp
-[Then(@"the response status should be (.*)")]
-public async Task ThenResponseStatusShouldBe(int expectedStatus)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ✅ Use TheResponseStatus question
-        var status = await Actor!.Asks(TheResponseStatus.Code);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-    });
-}
-
-[Then(@"the response should contain pokemon data")]
-public async Task ThenResponseShouldContainPokemonData()
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ✅ Use TheResponseBody question
-        var pokemon = await Actor!.Asks(TheResponseBody<Pokemon>.Deserialize());
-        Assert.That(pokemon, Is.Not.Null);
-        Assert.That(pokemon.Name, Is.Not.Empty);
-    });
-}
-```
-
-### ❌ DON'T: Use Direct Playwright/Page Calls in Then Steps
-
-**Anti-Pattern** (Old way):
-```csharp
-[Then(@"the list should contain (.*) items")]
-public async Task ThenTheListShouldContainItems(int expectedCount)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ❌ Don't use direct Playwright calls
-        var count = await Actor!.Page.Locator(".todo-item").CountAsync();
-        Assert.That(count, Is.EqualTo(expectedCount));
-    });
-}
-
-[Then(@"the heading should display ""(.*)""")]
-public async Task ThenTheHeadingShouldDisplay(string expectedText)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ❌ Don't use direct Page Object methods for assertions
-        var page = new TodoPage(Actor!.Page);
-        var text = await page.GetHeadingTextAsync();
-        Assert.That(text, Is.EqualTo(expectedText));
-    });
-}
-```
-
-### Why Questions Pattern?
-
-1. **Separation of Concerns**: Questions = data retrieval, not UI interaction
-2. **Reusability**: Share questions across multiple test scenarios
-3. **Testability**: Questions are unit-testable independently
-4. **Readability**: `Actor.Asks(TheText.Of())` is more expressive
-5. **Maintainability**: Centralized element queries
-
-### Available Built-in Questions
-
-**UI Questions** (`Tests/UI/Screenplay/Questions/`):
-- `TheText.Of(selector)` - Get text content
-- `TheVisibility.Of(selector)` - Check visibility (returns bool)
-- `TheCount.Of(selector)` - Count matching elements
-- `TheValue.Of(selector)` - Get input value
-- `TheTodoItems.All()` - Get all todo items (domain-specific)
-
-**API Questions** (`Tests/API/Questions/`):
-- `TheResponseStatus.Code` - Get HTTP status code
-- `TheResponseBody<T>.Deserialize()` - Deserialize response body
-
-### Creating Custom Questions
+### ❌ DON'T: Use Direct Playwright Calls
 
 ```csharp
-// 1. Implement IQuestion<T>
-public class TheCssClass : IQuestion<string>
-{
-    private readonly string _selector;
+// ❌ Anti-pattern
+var count = await Actor!.Page.Locator(".todo-item").CountAsync();
 
-    private TheCssClass(string selector) => _selector = selector;
-
-    // 2. Fluent factory method
-    public static TheCssClass Of(string selector) => new(selector);
-
-    // 3. Answer method (read-only)
-    public async Task<string> AnsweredBy(Actor actor)
-    {
-        return await actor.Page.GetAttributeAsync(_selector, "class") ?? "";
-    }
-}
-
-// 4. Use in step binding
-[Then(@"the element should have class ""(.*)""")]
-public async Task ThenElementShouldHaveClass(string expectedClass)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        var actualClass = await Actor!.Asks(TheCssClass.Of(".element"));
-        Assert.That(actualClass, Does.Contain(expectedClass));
-    });
-}
+// ✅ Correct  
+var count = await Actor!.Asks(TheCount.Of(".todo-item"));
 ```
+
+**Why Questions?** Separation, reusability, testability, readability.
+
+📖 **Complete Guide**: See [ARCHITECTURE.md](ARCHITECTURE.md) "Questions Pattern" for philosophy and examples.
 
 ## Performance Considerations
 

@@ -141,7 +141,7 @@ Define la historia de usuario o caso de uso específico:
 
 ### 1. AllureEnvironmentWriter.cs
 ```
-Tests/Core/Reporting/AllureEnvironmentWriter.cs
+Tests/Framework/Core/Reporting/AllureEnvironmentWriter.cs
 ```
 
 **Propósito:** Genera `environment.properties` con información del entorno.
@@ -166,7 +166,7 @@ Execution.Date=2025-12-30 14:30:00
 
 ### 2. AllureExecutorWriter.cs
 ```
-Tests/Core/Reporting/AllureExecutorWriter.cs
+Tests/Framework/Core/Reporting/AllureExecutorWriter.cs
 ```
 
 **Propósito:** Genera `executor.json` con información del CI/CD.
@@ -198,7 +198,7 @@ Tests/Core/Reporting/AllureExecutorWriter.cs
 
 ### 3. AllureCategoriesWriter.cs
 ```
-Tests/Core/Reporting/AllureCategoriesWriter.cs
+Tests/Framework/Core/Reporting/AllureCategoriesWriter.cs
 ```
 
 **Propósito:** Genera `categories.json` con categorías de errores mejoradas.

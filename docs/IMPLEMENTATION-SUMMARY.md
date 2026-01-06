@@ -34,7 +34,7 @@
 ```
 
 **Archivos modificados:**
-- `Tests/Core/Config/ConfigManager.cs` - Agregado `AddUserSecrets<AppSettings>()`
+- `Tests/Framework/Core/Config/ConfigManager.cs` - Agregado `AddUserSecrets<AppSettings>()`
 - `Tests/QuantumTestSuite.Tests.csproj` - Agregado `UserSecretsId` y paquete `Microsoft.Extensions.Configuration.UserSecrets`
 
 ---

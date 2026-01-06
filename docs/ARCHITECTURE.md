@@ -109,107 +109,15 @@ public class SauceDemoLoginPage
 ```
 
 ### Screenplay Pattern (4-Layer Model) ✨
-**Location**: `UI/Screenplay/` + `API/Questions/`
+**Location**: `Tests/Framework/UI/Screenplay/` + `Tests/Framework/API/Questions/`
 
 **Purpose**: High-level user interactions following Actor-Ability-Task-Question model
 
-#### Actors (Who performs actions)
-**Location**: `UI/Screenplay/Actors/`
+**4 Layers**: Actors (Who), Abilities (What), Tasks (How), Questions (See)
 
-Represents users/systems performing actions:
-```csharp
-var actor = new Actor("QA Tester", page);
-actor.Can(new BrowseTheWeb(page));
-await actor.AttemptsTo(new LoginToSauceDemo("user", "pass"));
-```
+**Key Principle**: Questions are read-only queries for assertions, named with `The{Property}` pattern, used with `Actor.Asks()`.
 
-#### Abilities (What actors can do)
-**Location**: `UI/Screenplay/Abilities/`
-
-Core capabilities actors possess:
-```csharp
-// UI Abilities
-actor.Can(new BrowseTheWeb(page));
-actor.Can(new RememberData());
-
-// API Abilities
-actor.Can(new CallApiEndpoint(apiContext));
-
-// Database Abilities
-actor.Can(new AccessDatabase(connectionString));
-```
-
-#### Tasks (How actors perform actions)
-**Location**: `UI/Screenplay/Tasks/`
-
-Complex multi-step actions:
-```csharp
-public class LoginToSauceDemo : ITask
-{
-    private readonly string _username;
-    private readonly string _password;
-
-    public async Task PerformAs(Actor actor)
-    {
-        var page = actor.Using<BrowseTheWeb>().Page;
-        var loginPage = new SauceDemoLoginPage(page);
-        await loginPage.LoginAsync(_username, _password);
-    }
-}
-```
-
-#### Questions (What actors observe) ✨ NEW
-**Location**: `UI/Screenplay/Questions/` + `API/Questions/`
-
-Data retrieval for assertions (read-only operations):
-
-**UI Questions**:
-```csharp
-// Get text content
-var text = await actor.Asks(TheText.Of(".product-label"));
-
-// Check visibility
-var isVisible = await actor.Asks(TheVisibility.Of("#checkout-button"));
-
-// Count elements
-var count = await actor.Asks(TheCount.Of(".inventory-item"));
-
-// Get value
-var value = await actor.Asks(TheValue.Of("input[name='quantity']"));
-
-// Get todo items (domain-specific)
-var items = await actor.Asks(TheTodoItems.All());
-```
-
-**API Questions**:
-```csharp
-// Get response status
-var status = await actor.Asks(TheResponseStatus.Code);
-
-// Get response body
-var pokemon = await actor.Asks(TheResponseBody<Pokemon>.Deserialize());
-```
-
-**Key Principles**:
-- Questions are **read-only** (never modify state)
-- Named with **The{Property}** pattern
-- Return data for **assertions**
-- Implement `IQuestion<T>` interface
-- Used with `Actor.Asks()` method
-
-**Example in Then steps**:
-```csharp
-[Then(@"the list should contain (.*) items")]
-public async Task ThenTheListShouldContainItems(int expectedCount)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ✅ Use Questions pattern
-        var actualCount = await Actor!.Asks(TheCount.Of(Locators.TodoItem));
-        Assert.That(actualCount, Is.EqualTo(expectedCount));
-    });
-}
-```
+📖 **Complete Templates & Examples**: See [FILE-STRUCTURE-GUIDE.md](FILE-STRUCTURE-GUIDE.md) for all code templates and detailed examples.
 
 ## Technology Stack
 
@@ -246,69 +154,19 @@ Environment Variables               (Runtime overrides)
 
 ## Test Execution Flow
 
-### API Test Flow
-```
-Feature File
-    ↓
-Given Step → Service Layer → API Client → Playwright APIRequestContext
-    ↓
-When Step → Validate request
-    ↓
-Then Step → Assert response + Attach to Allure
-```
+**API Tests**: Feature → Step Bindings → Service Layer → API Client → Playwright APIRequestContext → Allure
 
-### UI Test Flow
-```
-Feature File
-    ↓
-Given Step → Initialize Actor + Page
-    ↓
-When Step → Screenplay Task → Page Object → Playwright Browser
-    ↓
-Then Step → Questions (Actor.Asks) → Assert response + Capture screenshots
-```
+**UI Tests**: Feature → Step Bindings → Screenplay (Actor/Tasks/Questions) → Page Objects → Playwright Browser → Allure
 
-**Example Flow**:
-```
-Given the user navigates to TodoMVC
-  → Actor initialized with BrowseTheWeb ability
-  → NavigateToPlaywrightDemo task executed
-
-When the user adds "Buy milk" to the list
-  → AddTodoItem task executed
-  → Page object methods called
-  → Playwright automation
-
-Then the list should contain 1 item
-  → TheCount.Of(Locators.TodoItem) question asked
-  → Actor.Asks() retrieves count
-  → Assert.That(count, Is.EqualTo(1))
-  → Screenshots captured automatically
-```
+**Key**: Step Bindings are thin glue layer. Business logic in Services (API) or Tasks (UI). Assertions use Questions pattern.
 
 ## Reporting Architecture
 
-### Screenshot Configuration
-Configurable via `appsettings.json`:
-```json
-"ScreenshotOptions": {
-  "BeforeStep": false,   // Capture before each step
-  "AfterStep": false,    // Capture after each step
-  "OnFailure": true      // Capture on failure
-}
-```
+**Evidence Capture**: Screenshots (configurable timing), videos (full scenario), request/response JSON (API), logs.
 
-### Video Recording
-```json
-"VideoEnabled": true  // Records full scenario execution
-```
+**Allure Attachments**: Automatic attachment via base classes (UiStepBindingsBase, ApiStepBindingsBase).
 
-### Allure Attachments
-- Request/Response details (API)
-- Screenshots (UI)
-- Videos (UI)
-- Logs
-- Test data
+📖 **Configuration Guide**: See [ALLURE-QUICKSTART.md](ALLURE-QUICKSTART.md) for screenshot options, video settings, and best practices.
 
 ## CI/CD Integration
 
@@ -345,41 +203,17 @@ docker-compose up
 5. Inject in step bindings
 
 ### Adding New Question
-1. Create question class in `UI/Screenplay/Questions/` or `API/Questions/`
-2. Implement `IQuestion<T>` interface
-3. Follow `The{Property}` naming convention
-4. Use fluent factory methods (Of, With, etc.)
-5. Keep it read-only (never modify state)
-6. Use in Then steps with `Actor.Asks()`
 
-Example:
-```csharp
-// Create question
-public class TheCssClass : IQuestion<string>
-{
-    private readonly string _selector;
+**Guidelines**:
+1. Location: `Tests/Framework/UI/Screenplay/Questions/`
+2. Naming: `The{Property}` pattern (e.g., TheCssClass, TheValue)
+3. Interface: Implement `IQuestion<T>` with `AnsweredBy(Actor actor)`
+4. Read-only: Never modify state (queries only)
+5. Fluent: Use factory methods (Of, With, From, etc.)
 
-    private TheCssClass(string selector) => _selector = selector;
+**Philosophy**: Questions separate data retrieval from assertions, making tests more readable, maintainable, and testable.
 
-    public static TheCssClass Of(string selector) => new(selector);
-
-    public async Task<string> AnsweredBy(Actor actor)
-    {
-        return await actor.Page.GetAttributeAsync(_selector, "class") ?? "";
-    }
-}
-
-// Use in step binding
-[Then(@"the element should have class ""(.*)""")]
-public async Task ThenElementShouldHaveClass(string expectedClass)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        var actualClass = await Actor!.Asks(TheCssClass.Of(".element"));
-        Assert.That(actualClass, Does.Contain(expectedClass));
-    });
-}
-```
+📖 **Complete Guide**: See [FILE-STRUCTURE-GUIDE.md](FILE-STRUCTURE-GUIDE.md) for all Question templates and code examples.
 
 ### Adding New Environment
 1. Create `appsettings.{EnvironmentName}.json`

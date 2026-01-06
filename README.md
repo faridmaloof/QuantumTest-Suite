@@ -43,16 +43,7 @@ Enterprise-grade test automation framework built on **.NET 8**, implementing **B
 ✅ **Docker Support** - Reproducible execution environments  
 ✅ **GitHub Actions** - Ready-to-use CI/CD pipelines  
 
-### Test Categories
-- **API Tests (5)**: Pokemon API integration with Questions pattern
-- **UI Tests (3)**: TodoMVC scenarios with Screenplay + Questions
-- **Unit Tests (6)**: Framework validation (Actors, Questions, Abilities)
-
-### Evidence Capture (Configurable)
-- **Screenshots**: Before/After steps or on failure only
-- **Videos**: Full scenario recording
-- **API Details**: Request/Response with JSON formatting
-- **Logs**: Structured console output with test context
+**Status**: 14/14 passing (100%) - API (5) | UI (3) | Unit (6)
 
 ---
 
@@ -100,75 +91,23 @@ Enterprise-grade test automation framework built on **.NET 8**, implementing **B
          └───────────────────┘
 ```
 
-### Screenplay Pattern - 4 Layers ✨
+### Screenplay Pattern (4-Layer Model) ✨
 
-**NEW in v2.0**: Questions Pattern for clean assertions
+Framework implements Actor-Ability-Task-Question model: **Actors** perform **Tasks** using **Abilities**, then verify results with **Questions**.
 
-```csharp
-// 1. ACTORS (Who performs)
-var actor = new Actor("QA Tester", page);
-
-// 2. ABILITIES (What they can do)
-actor.Can(new BrowseTheWeb(page));
-actor.Can(new CallApiEndpoint(apiContext));
-
-// 3. TASKS (How they do it)
-await actor.AttemptsTo(new AddTodoItem("Buy milk"));
-
-// 4. QUESTIONS (What they see) ✨ NEW
-var count = await actor.Asks(TheCount.Of(".todo-item"));
-var text = await actor.Asks(TheText.Of("h1.title"));
-var isVisible = await actor.Asks(TheVisibility.Of("#button"));
-```
-
-**Why Questions?**
-- ✅ **Separation**: Data retrieval separate from actions
-- ✅ **Reusable**: Share across scenarios
-- ✅ **Testable**: Unit test questions independently
-- ✅ **Readable**: `Actor.Asks()` is more expressive
-- ✅ **Maintainable**: Centralized queries
+📖 **See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed philosophy and design decisions.**
 
 ### Step Bindings Modular Structure
 
-**NEW: Professional, maintainable organization** 🎯
-
 ```
 Tests/StepBindings/
-├── Base/                                   # 🔹 Automatic Evidence Capture
-│   ├── ApiStepBindingsBase.cs             #   → Auto API request/response logging
-│   └── UiStepBindingsBase.cs              #   → Auto screenshot/video capture
-├── Api/                                    # 🔹 API Test Step Bindings
-│   ├── HttpBinStepBindings.cs             #   → HttpBin GET tests
-│   ├── RestfulBookerStepBindings.cs       #   → Booking CRUD tests
-│   ├── GitHubStepBindings.cs              #   → GitHub search tests
-│   └── ApiCommonStepBindings.cs           #   → Common API assertions
-├── Ui/                                     # 🔹 UI Test Step Bindings
-│   ├── SauceDemoStepBindings.cs           #   → SauceDemo login flow
-│   ├── UltimateQaStepBindings.cs          #   → Form submission tests
-│   └── GitHubUiStepBindings.cs            #   → E2E API + UI tests
-└── UnitFeatures/                           # 🔹 Unit Test Step Bindings
-    ├── AbilitiesTestsStepBindings.cs
-    ├── ConfigManagerStepBindings.cs
-    ├── TestDataFactoryStepBindings.cs
-    └── UtilitiesStepBindings.cs
+├── Base/ → Automatic evidence capture
+├── Api/ → API test step bindings
+├── Ui/ → UI test step bindings  
+└── Unit/ → Framework unit tests
 ```
 
-**Benefits:**
-- ✅ **Automatic Evidence**: No manual screenshot/logging calls
-- ✅ **Small Files**: 40-80 lines each (vs 300+ monolithic)
-- ✅ **Single Responsibility**: One feature per file
-- ✅ **Easy Maintenance**: Clear, focused, professional code
-- ✅ **Auto Registration**: Assembly scanning (no DI config changes)
-
-**Key Patterns:**
-- **Inheritance Pattern**: Base classes handle evidence capture
-- **Factory Pattern**: Dynamic test data generation (Bogus)
-- **Service Layer**: Business logic encapsulation
-- **Dependency Injection**: Autofac for IoC with auto-registration
-- **Type-Safe Contexts**: No magic strings
-- **Utilities**: Retry, Wait helpers with centralized timeouts
-
-📖 **Detailed Guide**: [STEP-BINDINGS-ARCHITECTURE.md](docs/STEP-BINDINGS-ARCHITECTURE.md)
+📖 **Complete Guide**: [STEP-BINDINGS-ARCHITECTURE.md](docs/STEP-BINDINGS-ARCHITECTURE.md)
 
 ---
 
@@ -495,21 +434,15 @@ Actions → CI/CD → Run workflow → Set run_ui_tests=true
 
 ## 🎯 Examples
 
-### UI Testing with Questions Pattern ✨
+### Quick Example: UI Testing with Questions Pattern ✨
 
 ```gherkin
-@ui @smoke
-Feature: TodoMVC Demo
-  Scenario: Add and verify items in todo list
-    Given the user navigates to the Playwright demo page
-    When the user adds "Buy groceries" to the list
-    And the user adds "Walk the dog" to the list
-    And the user adds "Read a book" to the list
-    Then the list should contain 3 items
-    And the list should include "Buy groceries"
+Scenario: Add items to todo list
+  Given the user navigates to the Playwright demo page
+  When the user adds "Buy groceries" to the list
+  Then the list should contain 1 item
 ```
 
-**Step Binding with Questions**:
 ```csharp
 [Then(@"the list should contain (.*) items")]
 public async Task ThenTheListShouldContainItems(int expectedCount)
@@ -523,42 +456,7 @@ public async Task ThenTheListShouldContainItems(int expectedCount)
 }
 ```
 
-### API Testing with Questions Pattern ✨
-
-```gherkin
-@api @smoke
-Feature: Pokemon API Tests
-  Scenario: Retrieve Pokemon by ID
-    Given the user has access to PokeAPI
-    When the user requests pokemon with ID 25
-    Then the response status should be 200
-    And the pokemon name should be "pikachu"
-```
-
-**Step Binding with Questions**:
-```csharp
-[Then(@"the response status should be (.*)")]
-public async Task ThenResponseStatusShouldBe(int expectedStatus)
-{
-    await ExecuteThenAsync(async () =>
-    {
-        // ✅ Use Questions pattern
-        var status = await Actor!.Asks(TheResponseStatus.Code);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-    });
-}
-```
-
-### Unit Testing Framework Components
-
-```gherkin
-@unit @smoke
-Feature: Screenplay Pattern Unit Tests
-  Scenario: Actor can use granted abilities
-    Given an actor with RememberData ability
-    When the actor stores data "TestValue"
-    Then the actor can retrieve "TestValue"
-```
+**More Examples**: API testing, Unit testing, complete scenarios → [FILE-STRUCTURE-GUIDE.md](docs/FILE-STRUCTURE-GUIDE.md) and [STEP-BINDINGS-ARCHITECTURE.md](docs/STEP-BINDINGS-ARCHITECTURE.md)
 
 ---
 
@@ -656,40 +554,14 @@ dotnet build
 
 ## 📊 Framework Status
 
-### ✅ Current State (v2.0)
+**Build**: ✅ Passing (0 errors, 0 warnings) | **Tests**: ✅ 14/14 (100%) | **Documentation**: ✅ Complete v2.0
 
-| Category | Status | Details |
-|----------|--------|---------|
-| **Build** | ✅ PASSING | 0 errors, 0 warnings |
-| **Tests** | ✅ 100% | 14/14 tests passing |
-| **API Tests** | ✅ 5/5 | Pokemon API integration |
-| **UI Tests** | ✅ 3/3 | TodoMVC with Questions |
-| **Unit Tests** | ✅ 6/6 | Framework validation |
-| **Documentation** | ✅ Complete | All docs updated v2.0 |
-| **Questions Pattern** | ✅ Implemented | UI + API questions |
-| **Screenplay Pattern** | ✅ Full | 4-layer model complete |
-
-### 🎯 Test Results
-
-```
-Total Tests:     14
-✅ Passed:       14 (100%)
-❌ Failed:        0 (0%)
-⏭️ Skipped:       0 (0%)
-⏱️ Duration:     ~14s
-
-API Tests:    5/5 ✅ (Pokemon API)
-UI Tests:     3/3 ✅ (TodoMVC)
-Unit Tests:   6/6 ✅ (Screenplay)
-```
-
----
+📖 **Detailed Metrics**: See [docs/FRAMEWORK_STATUS.md](docs/FRAMEWORK_STATUS.md) for full quality report.
 
 ## 📞 Support
 
 - **Documentation**: See [docs/](docs/) directory
 - **Issues**: [GitHub Issues](https://github.com/your-org/quantum-test-suite/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/quantum-test-suite/discussions)
 
 ---
 
@@ -710,38 +582,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Built with ❤️ by QA Engineers, for QA Engineers**
-- **Allure report empty**: Run tests first, then generate report
-
----
-
-## 📞 Support
-
-- **Issues**: [Create GitHub Issue](../../issues)
-- **Questions**: Use `question` label
-- **Security**: Report privately to security team
-
----
-
-## 📄 License
-
-[Specify your license here]
-
----
-
-## 👥 Authors
-
-- **SDET Lead** - Framework Architecture
-- **QA Team** - Test Scenarios and Maintenance
-
----
-
-## 🙏 Acknowledgments
-
-- [Playwright Team](https://github.com/microsoft/playwright-dotnet)
-- [SpecFlow Community](https://specflow.org/)
-- [Allure Framework](https://github.com/allure-framework)
-- [Bogus Library](https://github.com/bchavez/Bogus)
-
----
-
-**Built with ❤️ by the QA Team**
