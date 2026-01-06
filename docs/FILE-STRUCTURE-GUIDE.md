@@ -261,111 +261,25 @@ QuantumTest-Suite/
 
 ---
 
-## 🎭 Screenplay Pattern Architecture
+## 🎭 Screenplay Pattern Quick Reference
 
-The Screenplay Pattern organizes test code into clear layers:
+The Screenplay Pattern has 4 layers. For detailed philosophy, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
-### 1. Actors (Who)
+### Pattern Structure
 
-**Location**: `Tests/Framework/UI/Screenplay/Actors/Actor.cs`  
-**Purpose**: Represents a user/system performing actions
+| Layer | Location | Purpose | Usage |
+|-------|----------|---------|-------|
+| **Actors** | `Tests/Framework/UI/Screenplay/Actors/` | Who performs actions | `var actor = new Actor("User", page)` |
+| **Abilities** | `Tests/Framework/UI/Screenplay/Abilities/` | What actors can do | `actor.WhoCan(new RememberData())` |
+| **Tasks** | `Tests/Framework/UI/Screenplay/Tasks/` | How they do it | `await actor.AttemptsTo(SomeTask.Do())` |
+| **Questions** | `Tests/Framework/UI/Screenplay/Questions/`<br>`Tests/Framework/API/Questions/` | What they see | `var result = await actor.Asks(TheText.Of(".selector"))` |
 
-```csharp
-var actor = new Actor("TestUser", page)
-    .WhoCan(new RememberData())
-    .WhoCan(new CallApiEndpoint(apiContext, settings));
-```
+### Key Methods
+- `actor.AttemptsTo(task1, task2)` - Execute tasks
+- `actor.Asks(question)` - Retrieve data for assertions
+- `actor.Using<Ability>()` - Access abilities
 
-**Key Methods**:
-- `AttemptsTo(params ITask[] tasks)` - Execute tasks
-- `Asks<T>(IQuestion<T> question)` - ✨ Ask questions (NEW)
-- `Using<TAbility>()` - Access abilities
-
-### 2. Abilities (What They Can Do)
-
-**Location**: `Tests/Framework/UI/Screenplay/Abilities/`  
-**Purpose**: Enable actors to interact with different layers
-
-**Available Abilities**:
-- `RememberData` - Store/retrieve test data
-- `CallApiEndpoint` - Make API calls
-- `AccessDatabase` - Database operations
-- `ReadConfiguration` - Access app settings
-
-### 3. Tasks (How They Do It)
-
-**Location**: `Tests/Framework/UI/Screenplay/Tasks/`  
-**Purpose**: High-level business actions
-
-**Structure**:
-```csharp
-public class AddTodoItem : ITask
-{
-    private readonly string _todoText;
-
-    public static AddTodoItem With(string text) => new(text);
-
-    public async Task ExecuteAsync(Actor actor)
-    {
-        // Implementation using Pages
-    }
-}
-```
-
-### 4. Questions (What They See) ✨ NEW
-
-**Location**: 
-- `Tests/Framework/UI/Screenplay/Questions/` (UI)
-- `Tests/Framework/API/Questions/` (API)
-
-**Purpose**: Retrieve information for assertions
-
-**UI Question Example**:
-```csharp
-public class TheText : IQuestion<string>
-{
-    public static TheText Of(string selector) => new(selector);
-
-    public async Task<string> AnsweredBy(Actor actor)
-    {
-        var element = await actor.Page.WaitForSelectorAsync(_selector);
-        return await element.InnerTextAsync();
-    }
-}
-```
-
-**API Question Example**:
-```csharp
-public class TheResponseStatus : IApiQuestion<HttpStatusCode>
-{
-    public static TheResponseStatus Code => _instance;
-
-    public async Task<HttpStatusCode> AnsweredBy(Actor actor)
-    {
-        var response = actor.Using<CallApiEndpoint>().GetLastResponse();
-        return response.StatusCode;
-    }
-}
-```
-
-**Usage in Step Bindings**:
-```csharp
-// UI Question
-var text = await Actor!.Asks(TheText.Of(".message"));
-Assert.That(text, Is.EqualTo("Expected text"));
-
-// Check visibility
-var isVisible = await Actor!.Asks(TheVisibility.Of("#button"));
-Assert.That(isVisible, Is.True);
-
-// Count elements
-var count = await Actor!.Asks(TheCount.Of(".list-item"));
-Assert.That(count, Is.EqualTo(5));
-
-// API Question
-var status = await Actor!.Asks(TheResponseStatus.Code);
-Assert.That(status, Is.EqualTo(HttpStatusCode.OK));
-```
+**Best Practices**: See [STEP-BINDINGS-ARCHITECTURE.md](STEP-BINDINGS-ARCHITECTURE.md) for usage examples.
 
 ---
 
