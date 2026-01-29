@@ -1,7 +1,8 @@
 param(
     [string]$ResultsPath = "Tests/bin/Debug/net8.0/Reports/AllureResults",
     [string]$ReportPath = "Reports/AllureReport",
-    [switch]$Open
+    [switch]$Open,
+    [switch]$Public
 )
 
 # Resolve absolute paths relative to repo root (parent of scripts folder)
@@ -28,6 +29,9 @@ if ($allureCli) {
     allure generate "$results" --clean -o "$report"
     if ($Open) {
         allure open "$report"
+    } elseif ($Public) {
+        Set-Location $repoRoot
+        Start-Process http-server -ArgumentList "Reports/AllureReport -a 0.0.0.0 -p 8080" -NoNewWindow
     }
     return
 }
@@ -70,6 +74,9 @@ try {
     & $localAllure generate "$results" --clean -o "$report"
     if ($Open) {
         & $localAllure open "$report"
+    } elseif ($Public) {
+        Set-Location $repoRoot
+        Start-Process http-server -ArgumentList "Reports/AllureReport -a 0.0.0.0 -p 8080" -NoNewWindow
     }
 } catch {
     Write-Error "Could not obtain Allure CLI automatically. Install Allure manually or ensure network access. Details: $_"
